@@ -1,0 +1,28 @@
+{
+  "name": "labeler",
+  "version": "1.0.0",
+  "description": "Create custom labels on GitHub repositories automatically.",
+  "main": "labeler.js",
+  "bin": {
+    "labeler": "labeler.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zebscripts/Labeler.git"
+  },
+  "keywords": [
+    "cli",
+    "meow",
+    "labels",
+    "GitHub"
+  ],
+  "author": "Sebastião Barros (@Zebiano)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zebscripts/Labeler/issues"
+  },
+  "homepage": "https://github.com/zebscripts/Labeler#readme",
+  "dependencies": {
+    "meow": "^6.0.1"
+  }
+}
