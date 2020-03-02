@@ -2,90 +2,68 @@
 'use strict';
 
 // Requires: Packages
-const meow = require('meow');
 const chalk = require('chalk');
+const inquirer = require('inquirer');
+const Configstore = require('configstore');
+const clear = require('clear');
 
 // Requires: Files
-const labels = require('./labels')
-
-// TODO: If run without commands and no settings file is found, ask for default values of settings file
-
-// Variables
-const helpText = `
-NAME
-    labeler - Label manager for GitHub repositories.
-
-SYNOPSIS
-    labeler [OPTIONS] -r [REPOSITORY]
-
-DESCRIPTION
-    Create custom labels on GitHub repositories automatically.
-    This CLI helps you organize your GitHub labels by storing them in a file called labels.json, as well as storing more info into another file called settings.json. You can add new labels through the CLI, with the -n flag. Whenever you create a new repository, run this script with the -du flag to delete the default labels and upload your custom ones!
-
-OPTIONS
-    -r, --repository (REQUIRED)
-        Specify GitHub repository name.
-
-    -o, --owner
-        Specify owner of the repository. Ignores "owner" key in settings.json.
-
-    -h, --help
-        Display this help page.
-
-    -d, --deleteAllLabels
-        Delete all existing labels in repository.
-
-    -n, --newLabel
-        Launch interactive CLI to store new labels in the labels.json file.
-
-    -s, --settings
-        Launch interactive CLI to generate the settings.js file.
-
-    -u, --upload
-        Upload custom labels.
-
-EXAMPLES
-    Delete all labels from the repo, and upload custom ones stored under labels.json:
-        labeler -dur repositoryName
-`
+const meow = require('./lib/meow');
+const packageJson = require('./package.json');
+const labels = require('./labels');
 
 // Variables
-const cli = meow(helpText, {
-    description: false,
-    flags: {
-        repository: {
-            alias: 'r',
-            type: 'string',
-            default: "null"
-        },
-        owner: {
-            alias: 'o',
-            type: 'string',
-            default: "null"
-        },
-        help: {
-            alias: 'h',
-            type: 'boolean'
-        },
-        deleteAllLabels: {
-            alias: 'd',
-            type: 'boolean'
-        },
-        newLabel: {
-            alias: 'n',
-            type: 'boolean'
-        },
-        settings: {
-            alias: 's',
-            type: 'boolean'
-        },
-        upload: {
-            alias: 'u',
-            type: 'boolean'
-        },
-    }
-});
-// console.log(cli.input[1], cli.flags);
-console.log(cli)
+const config = new Configstore(packageJson.name);
+
+// Meow - CLI helper
+const cli = meow.meow;
 
 /* --- Functions --- */
+// Launches interactive CLI to save config
+function saveConfig() {
+    // Variables
+    let defaultSettings = `{
+    "token": "",
+    "owner": "",
+    "repo": ""
+}
+`;
+    const questions = [
+        {
+            type: 'imput',
+            name: 'token',
+            message: 'Enter Personal GitHub Access Token:',
+            validate: function (value) {
+                if (value.length) {
+                    return true;
+                } else {
+                    return "Please enter a valid Token!";
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'owner',
+            message: 'Enter GitHub owner: (Username, Organization Name)'
+        },
+        {
+            type: 'input',
+            name: 'repository',
+            message: 'Enter GitHub repository:'
+        }
+    ];
+
+    // Get user input
+    inquirer.prompt(questions).then(answers => {
+        console.log(answers);
+        config.set(answers);
+        console.log(config.size)
+    });
+}
+
+
+function checkFlags() {
+    if (cli.flags.repository == "undefined") {
+
+    }
+}
