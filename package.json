@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/zebscripts/Labeler#readme",
   "dependencies": {
+    "chalk": "^3.0.0",
     "meow": "^6.0.1"
   }
 }

@@ -3,6 +3,7 @@
 
 // Requires: Packages
 const meow = require('meow');
+const chalk = require('chalk');
 
 // Requires: Files
 const labels = require('./labels')
@@ -15,58 +16,76 @@ NAME
     labeler - Label manager for GitHub repositories.
 
 SYNOPSIS
-    labeler [OPTIONS]
+    labeler [OPTIONS] -r [REPOSITORY]
 
 DESCRIPTION
     Create custom labels on GitHub repositories automatically.
+    This CLI helps you organize your GitHub labels by storing them in a file called labels.json, as well as storing more info into another file called settings.json. You can add new labels through the CLI, with the -n flag. Whenever you create a new repository, run this script with the -du flag to delete the default labels and upload your custom ones!
 
 OPTIONS
-    -r
-        Removes all existing labels in repository.
+    -r, --repository (REQUIRED)
+        Specify GitHub repository name.
 
-    -h
+    -o, --owner
+        Specify owner of the repository. Ignores "owner" key in settings.json.
+
+    -h, --help
         Display this help page.
 
-    -n
-        Launches interactive cli to store a new lable locally.
+    -d, --deleteAllLabels
+        Delete all existing labels in repository.
+
+    -n, --newLabel
+        Launch interactive CLI to store new labels in the labels.json file.
+
+    -s, --settings
+        Launch interactive CLI to generate the settings.js file.
+
+    -u, --upload
+        Upload custom labels.
 
 EXAMPLES
-    Delete all labels and upload custom ones saved in labels.json:
-        labeler -d
+    Delete all labels from the repo, and upload custom ones stored under labels.json:
+        labeler -dur repositoryName
 `
 
 // Variables
 const cli = meow(helpText, {
-    // Possible flags
+    description: false,
     flags: {
-        delete: {
-            alias: 'd',
-            type: 'boolean',
-            default: false
+        repository: {
+            alias: 'r',
+            type: 'string',
+            default: "null"
         },
-    },
-    // Default if no flags are set
-    default: {
-
+        owner: {
+            alias: 'o',
+            type: 'string',
+            default: "null"
+        },
+        help: {
+            alias: 'h',
+            type: 'boolean'
+        },
+        deleteAllLabels: {
+            alias: 'd',
+            type: 'boolean'
+        },
+        newLabel: {
+            alias: 'n',
+            type: 'boolean'
+        },
+        settings: {
+            alias: 's',
+            type: 'boolean'
+        },
+        upload: {
+            alias: 'u',
+            type: 'boolean'
+        },
     }
 });
-console.log(cli.input[0], cli.flags);
-
-// CLI arguments
-/* const cli = require('meow')(`
-  Usage: appname [options]
-
-  Options:
-        --lang LANG    set the language
-
-  Other options:
-    -h, --help         show usage information
-    -v, --version      print version info and exit
-`, {
-    string: ['lang'],
-    boolean: ['help', 'version'],
-    alias: { h: 'help', v: 'version' }
-}) */
-// console.log(cli.input[0], cli.flags);
+// console.log(cli.input[1], cli.flags);
+console.log(cli)
 
 /* --- Functions --- */
