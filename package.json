@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/zebscripts/Labeler#readme",
   "dependencies": {
+    "axios": "^0.19.2",
     "chalk": "^3.0.0",
     "clear": "^0.1.0",
     "configstore": "^5.0.1",
