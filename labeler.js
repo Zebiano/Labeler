@@ -2,13 +2,13 @@
 'use strict'
 
 // Requires: Packages
-const chalk = require('chalk')
 const meow = require('meow')
 
 // Requires: Libs
 const inquirer = require('./lib/inquirer')
 const config = require('./lib/configstore')
-const axios = require('./lib/axios')
+const requests = require('./lib/requests')
+const echo = require('./lib/echo')
 
 // Requires: Files
 const labels = require('./labels')
@@ -94,21 +94,49 @@ const cli = meow(helpText, {
     }
 })
 
-/* --- Main --- */
+/* --- Functions --- */
+// Check for flags, and use config if needed
+function checkFlag(key) {
+    if (cli.flags.hasOwnProperty(key)) {
+        return cli.flags[key]
+    } else if (config.hasKey(key)) {
+        return config.getKey(key)
+    } else {
+        return null
+    }
+}
+
+// Main
 async function main() {
     console.log(cli.flags)
-    /* for (var key in cli.flags) {
-        if (cli.flags.hasOwnProperty(key)) {
-            console.log(key + " -> " + cli.flags[key])
-            switch (key) {
-                case 'token':
+    // console.log(config.getAll())
 
-                    break
-                default:
-                    break
-            }
+    // Delete all labels from a repo
+    if (cli.flags.deleteAllLabels) {
+        // Get all labels form repo
+        const allLabels = await requests.getLabels(checkFlag('token'), checkFlag('owner'), checkFlag('repository'))
+
+        // Push promises that delete labels to array 
+        let arrayPromises = []
+        for (let i in allLabels.data) {
+            arrayPromises.push(requests.deleteLabel(
+                checkFlag('token'),
+                checkFlag('owner'),
+                checkFlag('repository'),
+                allLabels.data[i].name
+            ))
         }
-    } */
+
+        // Run promises (aka delete all labels)
+        Promise.all(arrayPromises).then(values => {
+            console.log(values);
+        });
+    }
+
+    // 
+    if (cli.flags.config) {
+        inquirer.askConfig()
+    }
 }
 
 // Start main
