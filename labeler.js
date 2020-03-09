@@ -88,7 +88,7 @@ const cli = meow(helpText, {
             alias: 'n',
             type: 'boolean'
         },
-        uploadLabel: {
+        uploadLabels: {
             alias: 'u',
             type: 'boolean'
         }
@@ -106,6 +106,9 @@ function assignFlag(flag) {
         return null
     }
 }
+
+// Check flags
+
 
 // Deletes all labels from a repo
 async function deleteAllLabels() {
@@ -134,7 +137,7 @@ async function deleteAllLabels() {
     // Get all labels form repo
     const allLabels = await requests.getLabels(token, owner, repo)
 
-    // Push promises that delete labels to an array
+    // Push promises (that delete labels) to an array
     for (let i in allLabels.data) {
         arrayPromises.push(requests.deleteLabel(
             token,
@@ -151,13 +154,54 @@ async function deleteAllLabels() {
     echo.success('Finished!', true)
 }
 
+// Upload all labels from labels.json
+async function uploadLabels() {
+    // Check flags
+    if (!token && !owner && !repo) {
+        echo.error('Missing arguments.')
+        echo.info('Use -h for help.', true)
+    } else if (!token) {
+        echo.error('You need to specify a token!')
+        echo.tip('Use the -t flag.', true)
+    } else if (!owner) {
+        echo.error('You need to specify an owner!')
+        echo.tip('Use the -o flag.', true)
+    } else if (!repo) {
+        echo.error('You need to specify a repository!')
+        echo.tip('Use the -r flag.', true)
+    }
+
+    // Ask if the user is sure
+    const answer = await inquirer.confirmUploadLabels()
+    if (!answer.uploadLabels) echo.warning('Aborted upload of all labels to ' + repo + '.', true)
+
+    // Variables
+    let arrayPromises = []
+
+    // Push promises (that upload labels) to an array
+    for (let i in labels) {
+        arrayPromises.push(requests.saveLabel(
+            token,
+            owner,
+            repo,
+            labels[i]
+        ))
+    }
+
+    // Run promises (aka upload all labels)
+    await Promise.all(arrayPromises)
+
+    // Done
+    echo.success('Finished!', true)
+}
+
 // Opens the interactive config CLI
 async function configCli() {
     clear() // Clear
 
-    // Display current config saved
-    console.log("Current config:")
-    console.log(config.getAll()) // TODO: Censor the token out (show last 4 characters maybe)
+    // Display current config
+    echo.info("Current config:")
+    console.log(config.getAll()) // TODO: Censor the token out (show last 4 characters maybe), and make input type: password in inquirer
     console.log()
 
     // Get config input from user
@@ -194,11 +238,14 @@ const repo = assignFlag('repository')
 
 // Main function
 async function main() {
-    // console.log(cli.flags)
+    console.log(cli.flags)
     // console.log(config.getAll())
 
     // Delete all labels from a repo
     if (cli.flags.deleteAllLabels) await deleteAllLabels()
+
+    // Upload custom labels
+    if (cli.flags.uploadLabels) await uploadLabels()
 
     // Run the config interactive CLI
     if (cli.flags.config) await configCli()
