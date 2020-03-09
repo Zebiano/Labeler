@@ -238,7 +238,7 @@ const repo = assignFlag('repository')
 
 // Main function
 async function main() {
-    console.log(cli.flags)
+    // console.log(cli.flags)
     // console.log(config.getAll())
 
     // Delete all labels from a repo

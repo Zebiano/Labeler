@@ -1,7 +1,82 @@
 [
     {
         "name": "(ノಠ益ಠ)ノ彡┻━┻",
-        "description": "For that one time. You'll know when that is.",
-        "color": "FC271E"
+        "color": "FC271E",
+        "description": "For that one time. You'll know when that is."
+    },
+    {
+        "name": "Duplicate :heavy_multiplication_x:",
+        "color": "D2DAE1",
+        "description": "It's a dupe, duh."
+    },
+    {
+        "name": "Good first issue :ok_hand:",
+        "color": "4F86C6",
+        "description": "If you're new here, check this out!"
+    },
+    {
+        "name": "Help wanted :raised_hands:",
+        "color": "A1EF8B",
+        "description": "I'm desperate. Please help a poor soul."
+    },
+    {
+        "name": "Priority: High :fire:",
+        "color": "FC271E",
+        "description": "Oh shit."
+    },
+    {
+        "name": "Priority: Low :snowflake:",
+        "color": "008000",
+        "description": "Don't worry about it. At least for now... But don't forget about it!"
+    },
+    {
+        "name": "Priority: Medium 🌪",
+        "color": "FFFF32",
+        "description": "I guess you should go take a look? Maybe this week still?"
+    },
+    {
+        "name": "Status: Acknowledged :v:",
+        "color": "A18276",
+        "description": "Did you really though? Don't forget about it!"
+    },
+    {
+        "name": "Status: Done :heavy_check_mark:",
+        "color": "008000",
+        "description": "I hope you actually did something well this time."
+    },
+    {
+        "name": "Status: In Progress :clock1030:",
+        "color": "ff8000",
+        "description": "Tell them you're working on it. Lie to them. Go!"
+    },
+    {
+        "name": "Status: Review Needed :thinking:",
+        "color": "FFFF32",
+        "description": "Don't try to do things alone, go check it out! It's probably good."
+    },
+    {
+        "name": "Type: Bug :beetle:",
+        "color": "FC271E",
+        "description": "It's a bug. Easy. Fix it."
+    },
+    {
+        "name": "Type: Enhancement :arrow_double_up:",
+        "color": "4F86C6",
+        "description": "Somebody says your code could be better! They're probably right."
+    },
+    {
+        "name": "Type: Feature Request :green_heart:",
+        "color": "008000",
+        "description": "Yay, people actually care about this project!"
+    },
+    {
+        "name": "Type: Question :question:",
+        "color": "D2DAE1",
+        "description": "You've told yourself you'd answer every single one. Go do it."
+    },
+    {
+        "name": "Type: TODO :memo:",
+        "color": "ff8000",
+        "description": "Let me guess: there are a lot?"
     }
 ]
