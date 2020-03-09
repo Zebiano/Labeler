@@ -145,9 +145,7 @@ async function deleteAllLabels() {
     }
 
     // Run promises (aka delete all labels)
-    Promise.all(arrayPromises).then(values => {
-        console.log(values);
-    });
+    await Promise.all(arrayPromises)
 
     // Done
     echo.success('Finished!', true)
