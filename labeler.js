@@ -29,19 +29,19 @@ SYNOPSIS
 DESCRIPTION
     Create custom labels on GitHub repositories automatically.
     This CLI helps you organize your GitHub labels by storing them in a file called labels.json. You can add new labels through the CLI with the -n flag.
-    Whenever you create a new repository, instead of manually uploading your labels, use this CLI instead to have it done automatically!
+    Whenever you create a new repository, instead of manually uploading your labels, use this CLI to have it done automatically!
 
 OPTIONS
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
-    -r, --repository
+    -r, --repository [REPOSITORY]
         Specify GitHub repository name. If not specified uses values in config, else ignores config.
 
-    -o, --owner
+    -o, --owner [OWNER]
         Specify owner of the repository. If not specified uses values in config, else ignores config.
 
-    -t, --token
+    -t, --token [TOKEN]
         Specify Personal Access Token. If not specified uses values in config, else ignores config.
 
     -h, --help
@@ -50,11 +50,11 @@ OPTIONS
     -d, --deleteAllLabels
         Delete all existing labels in repository.
 
-    -n, --newLabel
-        Launch interactive CLI to store new labels in the labels.json file.
-
     -u, --upload
         Upload custom labels.
+
+    -n, --newLabel
+        Launch interactive CLI to store new labels in the labels.json file.
 
     -f, --force
         Does not ask for user confirmation.
