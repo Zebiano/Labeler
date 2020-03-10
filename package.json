@@ -14,7 +14,8 @@
     "cli",
     "meow",
     "labels",
-    "GitHub"
+    "GitHub",
+    "labeler"
   ],
   "author": "Sebastião Barros (@Zebiano)",
   "license": "MIT",

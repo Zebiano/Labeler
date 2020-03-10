@@ -24,11 +24,12 @@ NAME
     labeler - Label manager for GitHub repositories.
 
 SYNOPSIS
-    labeler [OPTIONS] -r [REPOSITORY]
+    labeler [OPTIONS]
 
 DESCRIPTION
     Create custom labels on GitHub repositories automatically.
-    This CLI helps you organize your GitHub labels by storing them in a file called labels.json. You can add new labels through the CLI, with the -n flag. Whenever you create a new repository, run this script with the -du flag to delete the default labels and upload your custom ones!
+    This CLI helps you organize your GitHub labels by storing them in a file called labels.json. You can add new labels through the CLI with the -n flag.
+    Whenever you create a new repository, instead of manually uploading your labels, use this CLI instead to have it done automatically!
 
 OPTIONS
     -c, --config
@@ -61,6 +62,9 @@ OPTIONS
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under labels.json:
         labeler -dur repositoryName
+
+    Same as above but without the confirmation questions:
+        labeler -fdur repositoryName
 `;
 
 // Meow CLI
@@ -137,7 +141,8 @@ function checkRequiredFlags() {
 
 // Check flags
 function checkFlags() {
-    if ((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config)) {
+    if (((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config))
+        || (cli.flags.config && cli.flags.newLabel)) {
         echo.error('Wrong usage.')
         echo.info('Use -h for help.', true)
     }
