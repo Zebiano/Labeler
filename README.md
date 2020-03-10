@@ -123,7 +123,7 @@ This is the file where all you custom labels are stored. Feel free to edit it. J
 ```
 
 ## Issues
-You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated. Might as well check the default labels out!
+You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated. Might as well take a look at the default labels as well!
 
 ## Contributing
 I'm always open for new ideas and pull requests/code optimization. Though I don't think a lot more will be done as this is a fairly small project, which doesn't need too many features.
