@@ -35,10 +35,9 @@ SYNOPSIS
 
 DESCRIPTION
     Create custom labels on GitHub repositories automatically.
-    This CLI helps you organize your GitHub labels by storing 
-    them in a file called labels.json. You can add new labels 
-    through the CLI with the -n flag. Whenever you create a 
-    new repository, instead of manually uploading your labels,
+    This CLI helps you organize your GitHub labels by storing them in a file called labels.json.
+    You can add new labels through the CLI with the -n flag.
+    Whenever you create a new repository, instead of manually uploading your labels,
     use this CLI to have it done automatically!
 
 OPTIONS
