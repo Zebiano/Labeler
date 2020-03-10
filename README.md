@@ -102,12 +102,12 @@ An interactive CLI to help you add new Labels to the `labels.json` file.
 
 ### `labeler -fdur [REPOSITORY]`
 A very specific example, yet the one I think will be the most used:
-- `-f`: Ignores asking for confirmation.
-- `-d`: Delete all labels from repository.
-- `-u`: Upload custom labels to repository.
-- `-r`: Specify the repository.
+- `-f` Ignores asking for confirmation.
+- `-d` Delete all labels from repository.
+- `-u` Upload custom labels to repository.
+- `-r` Specify the repository.
 
-This does assume that `token` and `owner` are set in the `config`!
+It's assumed that `token` and `owner` are set in the `config`!
 
 ## `labels.json`
 This is the file where all you custom labels are stored. Feel free to edit it. Just keep in mind it has to have the following structure:
@@ -123,7 +123,7 @@ This is the file where all you custom labels are stored. Feel free to edit it. J
 ```
 
 ## Issues
-You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated!
+You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated. Might as well check the default labels out!
 
 ## Contributing
 I'm always open for new ideas and pull requests/code optimization. Though I don't think a lot more will be done as this is a fairly small project, which doesn't need too many features.
