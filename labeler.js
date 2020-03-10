@@ -4,17 +4,20 @@
 // Requires: Packages
 const meow = require('meow')
 const clear = require('clear')
+const chalk = require('chalk')
 
 // Requires: Libs
 const inquirer = require('./lib/inquirer')
 const config = require('./lib/configstore')
-const requests = require('./lib/requests')
+const axios = require('./lib/axios')
+const fs = require('./lib/fs')
 const echo = require('./lib/echo')
 
-// Requires: Files
-const labels = require('./labels')
+// Variables
+let labels = fs.readSync()
 
-// TODO: -n
+// TODO: Check if flags were used together that aren't meant to be used together
+// TODO: Make it pretty...?
 
 // Variables
 const helpText = `
@@ -116,11 +119,11 @@ function assignFlag(flag) {
     }
 }
 
-// Check flags
+// TODO: Check flags
 
 
 // Deletes all labels from a repo
-async function deleteAllLabels(exit) {
+async function deleteAllLabels() {
     // Check flags
     if (!token && !owner && !repo) {
         echo.error('Missing arguments.')
@@ -141,17 +144,18 @@ async function deleteAllLabels(exit) {
         const answer = await inquirer.confirmDeleteAllLabels()
         if (!answer.deleteAllLabels) echo.warning('Aborted deletion of all labels from ' + repo + '.', true)
     }
-    echo.info('Deleting labels...')
+    echo.info(chalk.bold('Deleting labels...'))
 
     // Variables
     let arrayPromises = []
 
     // Get all labels form repo
-    const allLabels = await requests.getLabels(token, owner, repo)
+    const allLabels = await axios.getLabels(true, owner, repo)
 
     // Push promises (that delete labels) to an array
     for (let i in allLabels.data) {
-        arrayPromises.push(requests.deleteLabel(
+        arrayPromises.push(axios.deleteLabel(
+            false,
             token,
             allLabels.data[i]
         ))
@@ -161,12 +165,12 @@ async function deleteAllLabels(exit) {
     await Promise.all(arrayPromises)
 
     // Done
-    if (cli.flags.uploadLabels) echo.success('Done!')
-    else echo.success('Finished!', true)
+    if (cli.flags.uploadLabels) console.log()
+    else echo.success('Finished!\n', true)
 }
 
 // Upload all labels from labels.json
-async function uploadLabels(exit) {
+async function uploadLabels() {
     // Check flags
     if (!token && !owner && !repo) {
         echo.error('Missing arguments.')
@@ -187,14 +191,15 @@ async function uploadLabels(exit) {
         const answer = await inquirer.confirmUploadLabels()
         if (!answer.uploadLabels) echo.warning('Aborted upload of all labels to ' + repo + '.', true)
     }
-    echo.info('Uploading labels...')
+    echo.info(chalk.bold('Uploading labels...'))
 
     // Variables
     let arrayPromises = []
 
     // Push promises (that upload labels) to an array
     for (let i in labels) {
-        arrayPromises.push(requests.saveLabel(
+        arrayPromises.push(axios.saveLabel(
+            false,
             token,
             owner,
             repo,
@@ -206,11 +211,11 @@ async function uploadLabels(exit) {
     await Promise.all(arrayPromises)
 
     // Done
-    echo.success('Finished!', true)
+    echo.success('Finished!\n', true)
 }
 
 // Opens the interactive config CLI
-async function configCli() {
+async function cliConfig() {
     clear() // Clear
 
     // Display current config
@@ -237,11 +242,25 @@ async function configCli() {
     } else {
         // Exit
         clear()
-        echo.success('Finished!', true)
+        echo.success('Finished!\n', true)
     }
 
     // Call this function again until user exits
-    await configCli()
+    await cliConfig()
+}
+
+// Opens the interactive "create new label" CLI
+async function cliNewLabel() {
+    clear() // Clear
+
+    // Get config input from user
+    let answer = await inquirer.newLabel()
+    // TODO: Check if name already exists
+    labels.push(answer)
+    fs.writeFileSync(labelFile, JSON.stringify(labels, null, 4));
+
+    // Call this function again until user exits
+    await cliNewLabel()
 }
 
 /* --- Start --- */
@@ -256,13 +275,16 @@ async function main() {
     // console.log(config.getAll())
 
     // Delete all labels from a repo
-    if (cli.flags.deleteAllLabels) await deleteAllLabels(true)
+    if (cli.flags.deleteAllLabels) await deleteAllLabels()
 
     // Upload custom labels
     if (cli.flags.uploadLabels) await uploadLabels()
 
-    // Run the config interactive CLI
-    if (cli.flags.config) await configCli()
+    // Run the interactive config CLI
+    if (cli.flags.config) await cliConfig()
+
+    // Run the interactive "create new label" CLI
+    if (cli.flags.newLabel) await cliNewLabel()
 
     // If nothing happens, I'm assuming the user ran without flags
     echo.error('Missing arguments.')
