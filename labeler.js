@@ -14,6 +14,9 @@ const echo = require('./lib/echo')
 // Requires: Files
 const labels = require('./labels')
 
+// TODO: -n
+// TODO: -f
+
 // Variables
 const helpText = `
 NAME
@@ -50,6 +53,9 @@ OPTIONS
 
     -u, --upload
         Upload custom labels.
+
+    -f, --force
+        Does not ask for user confirmation.
 
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under labels.json:
@@ -111,7 +117,7 @@ function assignFlag(flag) {
 
 
 // Deletes all labels from a repo
-async function deleteAllLabels() {
+async function deleteAllLabels(exit) {
     // Check flags
     if (!token && !owner && !repo) {
         echo.error('Missing arguments.')
@@ -130,6 +136,7 @@ async function deleteAllLabels() {
     // Ask if the user is sure
     const answer = await inquirer.confirmDeleteAllLabels()
     if (!answer.deleteAllLabels) echo.warning('Aborted deletion of all labels from ' + repo + '.', true)
+    else echo.info('Deleting labels...')
 
     // Variables
     let arrayPromises = []
@@ -141,9 +148,7 @@ async function deleteAllLabels() {
     for (let i in allLabels.data) {
         arrayPromises.push(requests.deleteLabel(
             token,
-            owner,
-            repo,
-            allLabels.data[i].name
+            allLabels.data[i]
         ))
     }
 
@@ -151,11 +156,12 @@ async function deleteAllLabels() {
     await Promise.all(arrayPromises)
 
     // Done
-    echo.success('Finished!', true)
+    if (cli.flags.uploadLabels) echo.success('Done!')
+    else echo.success('Finished!', true)
 }
 
 // Upload all labels from labels.json
-async function uploadLabels() {
+async function uploadLabels(exit) {
     // Check flags
     if (!token && !owner && !repo) {
         echo.error('Missing arguments.')
@@ -174,6 +180,7 @@ async function uploadLabels() {
     // Ask if the user is sure
     const answer = await inquirer.confirmUploadLabels()
     if (!answer.uploadLabels) echo.warning('Aborted upload of all labels to ' + repo + '.', true)
+    else echo.info('Uploading labels...')
 
     // Variables
     let arrayPromises = []
@@ -242,7 +249,7 @@ async function main() {
     // console.log(config.getAll())
 
     // Delete all labels from a repo
-    if (cli.flags.deleteAllLabels) await deleteAllLabels()
+    if (cli.flags.deleteAllLabels) await deleteAllLabels(true)
 
     // Upload custom labels
     if (cli.flags.uploadLabels) await uploadLabels()
