@@ -111,7 +111,7 @@ It's assumed that `token` and `owner` are set in the `config`!
 
 ## `labels.json`
 This is the file where all you custom labels are stored. Feel free to edit it. Just keep in mind it has to have the following structure:
-```json
+```
 [
     {
         "name": "Label name",
