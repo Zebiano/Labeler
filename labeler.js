@@ -15,7 +15,6 @@ const echo = require('./lib/echo')
 const labels = require('./labels')
 
 // TODO: -n
-// TODO: -f
 
 // Variables
 const helpText = `
@@ -97,6 +96,10 @@ const cli = meow(helpText, {
         uploadLabels: {
             alias: 'u',
             type: 'boolean'
+        },
+        force: {
+            alias: 'f',
+            type: 'boolean'
         }
     }
 })
@@ -134,9 +137,11 @@ async function deleteAllLabels(exit) {
     }
 
     // Ask if the user is sure
-    const answer = await inquirer.confirmDeleteAllLabels()
-    if (!answer.deleteAllLabels) echo.warning('Aborted deletion of all labels from ' + repo + '.', true)
-    else echo.info('Deleting labels...')
+    if (!cli.flags.force) {
+        const answer = await inquirer.confirmDeleteAllLabels()
+        if (!answer.deleteAllLabels) echo.warning('Aborted deletion of all labels from ' + repo + '.', true)
+    }
+    echo.info('Deleting labels...')
 
     // Variables
     let arrayPromises = []
@@ -178,9 +183,11 @@ async function uploadLabels(exit) {
     }
 
     // Ask if the user is sure
-    const answer = await inquirer.confirmUploadLabels()
-    if (!answer.uploadLabels) echo.warning('Aborted upload of all labels to ' + repo + '.', true)
-    else echo.info('Uploading labels...')
+    if (!cli.flags.force) {
+        const answer = await inquirer.confirmUploadLabels()
+        if (!answer.uploadLabels) echo.warning('Aborted upload of all labels to ' + repo + '.', true)
+    }
+    echo.info('Uploading labels...')
 
     // Variables
     let arrayPromises = []
