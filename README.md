@@ -14,8 +14,6 @@
 <!-- Uncomment the following quote whenever the CLI is Failing -->
 <!-- > Reason to why its failing here. -->
 
-This CLI is meant to help uploading custom labels to GitHub repositories.
-
 ## Why?
 Because I was sick of always deleting the default labels and uploading my own one by one.
 
