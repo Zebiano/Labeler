@@ -15,7 +15,7 @@
 <!-- > Reason to why its failing here. -->
 
 ## Why?
-Because I was sick of always deleting the default labels and uploading my own one by one.
+Because I was sick of always deleting the default labels and uploading my own ones one by one.
 
 ## How?
 By storing your labels in a file called `labels.json`, deleting the default ones in the repository and uploading the ones from said file.
