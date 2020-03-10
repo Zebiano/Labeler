@@ -83,5 +83,20 @@
         "name": "Type: TODO :memo:",
         "color": "ff8000",
         "description": "Let me guess: there are a lot?"
+    },
+    {
+        "name": "awd",
+        "description": "awd",
+        "color": "132123"
+    },
+    {
+        "name": "iscas",
+        "description": "",
+        "color": "234343"
+    },
+    {
+        "name": "awdd",
+        "description": "awd",
+        "color": "123123"
     }
 ]

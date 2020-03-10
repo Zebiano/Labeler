@@ -16,7 +16,6 @@ const echo = require('./lib/echo')
 // Variables
 let labels = fs.readSync()
 
-// TODO: Check if flags were used together that aren't meant to be used together
 // TODO: Make it pretty...?
 
 // Variables
@@ -119,12 +118,8 @@ function assignFlag(flag) {
     }
 }
 
-// TODO: Check flags
-
-
-// Deletes all labels from a repo
-async function deleteAllLabels() {
-    // Check flags
+// Check required flags
+function checkRequiredFlags() {
     if (!token && !owner && !repo) {
         echo.error('Missing arguments.')
         echo.info('Use -h for help.', true)
@@ -138,6 +133,20 @@ async function deleteAllLabels() {
         echo.error('You need to specify a repository!')
         echo.tip('Use the -r flag.', true)
     }
+}
+
+// Check flags
+function checkFlags() {
+    if ((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config)) {
+        echo.error('Wrong usage.')
+        echo.info('Use -h for help.', true)
+    }
+}
+
+// Deletes all labels from a repo
+async function deleteAllLabels() {
+    // Check required Flags
+    checkRequiredFlags()
 
     // Ask if the user is sure
     if (!cli.flags.force) {
@@ -171,20 +180,8 @@ async function deleteAllLabels() {
 
 // Upload all labels from labels.json
 async function uploadLabels() {
-    // Check flags
-    if (!token && !owner && !repo) {
-        echo.error('Missing arguments.')
-        echo.info('Use -h for help.', true)
-    } else if (!token) {
-        echo.error('You need to specify a token!')
-        echo.tip('Use the -t flag.', true)
-    } else if (!owner) {
-        echo.error('You need to specify an owner!')
-        echo.tip('Use the -o flag.', true)
-    } else if (!repo) {
-        echo.error('You need to specify a repository!')
-        echo.tip('Use the -r flag.', true)
-    }
+    // Check required Flags
+    checkRequiredFlags()
 
     // Ask if the user is sure
     if (!cli.flags.force) {
@@ -251,13 +248,24 @@ async function cliConfig() {
 
 // Opens the interactive "create new label" CLI
 async function cliNewLabel() {
-    clear() // Clear
+    // Variables
+    let dupe = false
 
     // Get config input from user
     let answer = await inquirer.newLabel()
-    // TODO: Check if name already exists
-    labels.push(answer)
-    fs.writeFileSync(labelFile, JSON.stringify(labels, null, 4));
+
+    // Check for dupe
+    for (let i in labels) {
+        if (labels[i].name == answer.name) {
+            dupe = true
+            break
+        }
+    }
+    if (!dupe) {
+        labels.push(answer)
+        fs.writeSync(labels)
+        echo.success('Saved label!')
+    } else echo.error('Label already exists! Please choose another name.')
 
     // Call this function again until user exits
     await cliNewLabel()
@@ -274,17 +282,11 @@ async function main() {
     // console.log(cli.flags)
     // console.log(config.getAll())
 
-    // Delete all labels from a repo
-    if (cli.flags.deleteAllLabels) await deleteAllLabels()
-
-    // Upload custom labels
-    if (cli.flags.uploadLabels) await uploadLabels()
-
-    // Run the interactive config CLI
-    if (cli.flags.config) await cliConfig()
-
-    // Run the interactive "create new label" CLI
-    if (cli.flags.newLabel) await cliNewLabel()
+    checkFlags() // Check if flags were called correctly
+    if (cli.flags.deleteAllLabels) await deleteAllLabels() // Delete all labels from a repo
+    if (cli.flags.uploadLabels) await uploadLabels() // Upload custom labels
+    if (cli.flags.config) await cliConfig() // Run the interactive config CLI
+    if (cli.flags.newLabel) await cliNewLabel() // Run the interactive "create new label" CLI
 
     // If nothing happens, I'm assuming the user ran without flags
     echo.error('Missing arguments.')
