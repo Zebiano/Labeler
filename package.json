@@ -4,7 +4,8 @@
   "description": "Create custom labels on GitHub repositories automatically.",
   "main": "labeler.js",
   "bin": {
-    "labeler": "labeler.js"
+    "labeler": "labeler.js",
+    "labeler-dev": "labeler.js"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "configstore": "^5.0.1",
     "fs": "0.0.1-security",
     "inquirer": "^7.0.5",
-    "meow": "^6.0.1"
+    "meow": "^6.0.1",
+    "update-notifier": "^4.1.0"
   }
 }

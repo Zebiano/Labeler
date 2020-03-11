@@ -5,6 +5,7 @@
 const meow = require('meow')
 const clear = require('clear')
 const chalk = require('chalk')
+const updateNotifier = require('update-notifier')
 
 // Requires: Libs
 const inquirer = require('./lib/inquirer')
@@ -13,12 +14,11 @@ const axios = require('./lib/axios')
 const fs = require('./lib/fs')
 const echo = require('./lib/echo')
 
+// Require: Files
+const pkg = require('./package.json')
+
 // Variables
 let labels = fs.readSync()
-
-// TODO: Make it pretty...?
-
-// Variables
 const helpText = `
 NAME
     labeler - Label manager for GitHub repositories.
@@ -244,7 +244,7 @@ async function cliConfig() {
     } else {
         // Exit
         clear()
-        echo.success('Finished!\n', true)
+        process.exit()
     }
 
     // Call this function again until user exits
@@ -277,6 +277,9 @@ async function cliNewLabel() {
 }
 
 /* --- Start --- */
+// Update Notifier
+updateNotifier({ pkg }).notify()
+
 // Variables
 const token = assignFlag('token')
 const owner = assignFlag('owner')
