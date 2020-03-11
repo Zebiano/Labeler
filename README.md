@@ -18,7 +18,7 @@
 Because I was sick of always deleting the default labels and uploading my own ones.
 
 ## How?
-By storing your labels in a file called `labels.json`, deleting the default ones in the repository and uploading the ones from said file.
+By storing your labels in a file called `labels.json`, deleting the default ones in the repository and uploading those from said file.
 
 ## Installation
 ```
@@ -74,7 +74,7 @@ EXAMPLES
         labeler -fdur repositoryName
 ```
 
-I've tried my best to create a tool that everyone can use as they want. If you prefer using flags for everything, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`! If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag) when running `labeler -du` (for example).
+I've tried my best to create a tool for everyone. If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`! If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag) when running `labeler -du` (for example).
 
 `labeler` comes with some predefined labels, but you can of course use your own. Either edit `labels.json` accordingly, or run `labeler -n` to add a new label through the CLI.
 
@@ -82,9 +82,9 @@ I've tried my best to create a tool that everyone can use as they want. If you p
 ### `labeler -c`
 Interactive CLI for the config. Most likely the first command to run. I recommend setting the `token` and the `owner`, as they rarely change usually. If you want to remove an entry, simply enter nothing when asked.
 
-- **token**: Personal GitHub Access Token. Create one called `labeler` [here](https://github.com/settings/tokens) with the following permissions: `admin:org, repo`
+- **token**: Personal GitHub Access Token. Create one called "Labeler" [here](https://github.com/settings/tokens) with the following permissions: `admin:org, repo`
 - **owner**: Also known as the username. In [my case](https://github.com/Zebiano) it's `Zebiano` for example.
-- **repository**: Name of the repository. As an example, this repo would be `labeler`. It is **not recommended** to set this setting as it may cause non-intentional deletion of labels.
+- **repository**: Name of the repository. As an example, this repo would be `labeler`. It is **not recommended** to set this setting as it may cause non-intentional deletions of labels.
 
 In case you need to access a repository from another owner, simply run the `-o [OWNER]` flag and the one stored in the config will be ignored.
 
@@ -94,18 +94,16 @@ An interactive CLI to help you add new Labels to the `labels.json` file.
 - **name**: Name of label.
   - *Example:* `Bug :beetle:`
 - **description**: Description of label.
-  - *Example:* `This is bug.`
+  - *Example:* `This is a bug.`
 - **color**: Color of label. Hex value, no `#` needed.
   - *Example:* `FC271E`
 
 ### `labeler -fdur [REPOSITORY]`
-A very specific example, yet the one I think will be the most used:
-- `-f` Ignores asking for confirmation.
+A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the `config`!
+- `-f` Does not ask for user confirmation.
 - `-d` Delete all labels from repository.
 - `-u` Upload custom labels to repository.
 - `-r` Specify the repository.
-
-It's assumed that `token` and `owner` are set in the `config`!
 
 ## `labels.json`
 This is the file where all your custom labels are stored. Feel free to edit it. Just keep in mind it has to have the following structure:
@@ -121,7 +119,4 @@ This is the file where all your custom labels are stored. Feel free to edit it. 
 ```
 
 ## Issues
-You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated! You might as well take a look at the default labels, those are the ones shipped with this package.
-
-## Contributing
-I'm always open for new ideas and pull requests/code optimization. Though I don't think a lot more will be done as this is a fairly small project.
+You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated! And since you're there already, might as well take a look at the default labels as those are the ones shipped with this package.
