@@ -15,7 +15,7 @@
 <!-- > Reason to why its failing here. -->
 
 ## Why?
-Because I was sick of always deleting the default labels and uploading my own ones one by one.
+Because I was sick of always deleting the default labels and uploading my own ones.
 
 ## How?
 By storing your labels in a file called `labels.json`, deleting the default ones in the repository and uploading the ones from said file.
@@ -110,7 +110,7 @@ A very specific example, yet the one I think will be the most used:
 It's assumed that `token` and `owner` are set in the `config`!
 
 ## `labels.json`
-This is the file where all you custom labels are stored. Feel free to edit it. Just keep in mind it has to have the following structure:
+This is the file where all your custom labels are stored. Feel free to edit it. Just keep in mind it has to have the following structure:
 ```
 [
     {
@@ -123,7 +123,7 @@ This is the file where all you custom labels are stored. Feel free to edit it. J
 ```
 
 ## Issues
-You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated. Might as well take a look at the default labels as well!
+You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated! You might as well take a look at the default labels, those are the ones shipped with this package.
 
 ## Contributing
-I'm always open for new ideas and pull requests/code optimization. Though I don't think a lot more will be done as this is a fairly small project, which doesn't need too many features.
+I'm always open for new ideas and pull requests/code optimization. Though I don't think a lot more will be done as this is a fairly small project.

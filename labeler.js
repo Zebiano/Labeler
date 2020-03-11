@@ -126,7 +126,7 @@ function assignFlag(flag) {
 function checkRequiredFlags() {
     if (!token && !owner && !repo) {
         echo.error('Missing arguments.')
-        echo.info('Use -h for help.', true)
+        echo.tip('Use -h for help.', true)
     } else if (!token) {
         echo.error('You need to specify a token!')
         echo.tip('Use the -t flag.', true)
@@ -222,7 +222,7 @@ async function cliConfig() {
 
     // Display current config
     echo.info("Current config:")
-    console.log(config.getAll()) // TODO: Censor the token out (show last 4 characters maybe), and make input type: password in inquirer
+    console.log(config.getAll())
     console.log()
 
     // Get config input from user
@@ -287,9 +287,6 @@ const repo = assignFlag('repository')
 
 // Main function
 async function main() {
-    // console.log(cli.flags)
-    // console.log(config.getAll())
-
     checkFlags() // Check if flags were called correctly
     if (cli.flags.deleteAllLabels) await deleteAllLabels() // Delete all labels from a repo
     if (cli.flags.uploadLabels) await uploadLabels() // Upload custom labels
@@ -298,7 +295,7 @@ async function main() {
 
     // If nothing happens, I'm assuming the user ran without flags
     echo.error('Missing arguments.')
-    echo.info('Use -h for help.', true)
+    echo.tip('Use -h for help.', true)
 }
 
 // Call main()
