@@ -47,13 +47,13 @@ OPTIONS
     -h, --help
         Display this help page.
 
-    -d, --deleteAllLabels
+    -d, --delete-all-labels
         Delete all existing labels in repository.
 
-    -u, --upload
+    -u, --upload-labels
         Upload custom labels.
 
-    -n, --newLabel
+    -n, --new-label
         Launch interactive CLI to store new labels in the labels.json file.
 
     -f, --force
@@ -71,39 +71,39 @@ EXAMPLES
 const cli = meow(helpText, {
     description: false,
     flags: {
-        config: {
+        'config': {
             alias: 'c',
             type: 'boolean'
         },
-        repository: {
+        'repository': {
             alias: 'r',
             type: 'string'
         },
-        owner: {
+        'owner': {
             alias: 'o',
             type: 'string'
         },
-        token: {
+        'token': {
             alias: 't',
             type: 'string'
         },
-        help: {
+        'help': {
             alias: 'h',
             type: 'boolean'
         },
-        deleteAllLabels: {
+        'delete-all-labels': {
             alias: 'd',
             type: 'boolean'
         },
-        newLabel: {
+        'new-label': {
             alias: 'n',
             type: 'boolean'
         },
-        uploadLabels: {
+        'upload-labels': {
             alias: 'u',
             type: 'boolean'
         },
-        force: {
+        'force': {
             alias: 'f',
             type: 'boolean'
         }
