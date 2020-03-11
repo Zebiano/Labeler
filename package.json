@@ -1,6 +1,6 @@
 {
   "name": "labeler",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Create custom labels on GitHub repositories automatically.",
   "main": "labeler.js",
   "bin": {
