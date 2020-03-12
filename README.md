@@ -79,7 +79,7 @@ I've tried my best to create a tool for everyone. If you prefer using flags, fee
 `labeler` comes with some predefined labels, but you can of course use your own. Either edit `labels.json` accordingly, or run `labeler -n` to add a new label through the CLI.
 
 ## Commands
-### `labeler -c`
+#### `labeler -c`
 Interactive CLI for the config. Most likely the first command to run. I recommend setting the `token` and the `owner`, as they rarely change usually. If you want to remove an entry, simply enter nothing when asked.
 
 - **token**: Personal GitHub Access Token. Create one called "Labeler" [here](https://github.com/settings/tokens) with the following permissions: `admin:org, repo`
@@ -88,7 +88,7 @@ Interactive CLI for the config. Most likely the first command to run. I recommen
 
 In case you need to access a repository from another owner, simply run the `-o [OWNER]` flag and the one stored in the config will be ignored.
 
-### `labeler -n`
+#### `labeler -n`
 An interactive CLI to help you add new Labels to the `labels.json` file.
 
 - **name**: Name of label.
@@ -98,7 +98,7 @@ An interactive CLI to help you add new Labels to the `labels.json` file.
 - **color**: Color of label. Hex value, no `#` needed.
   - *Example:* `FC271E`
 
-### `labeler -fdur [REPOSITORY]`
+#### `labeler -fdur [REPOSITORY]`
 A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the `config`!
 - `-f` Does not ask for user confirmation.
 - `-d` Delete all labels from repository.
