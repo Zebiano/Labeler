@@ -66,12 +66,21 @@ OPTIONS
     -f, --force
         Does not ask for user confirmation.
 
+    -e, --empty-labels
+        Remove every label from the labels.json file.
+
+    -l, --reset-labels-file
+        Reset labels.json by deleting it and creating it with default labels.
+
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under labels.json:
         labeler -dur repositoryName
 
     Same as above but without the confirmation questions:
         labeler -fdur repositoryName
+
+    Delete every label from labels.json and add new labels to it:
+        labeler -en
 ```
 
 I've tried my best to create a tool for everyone. If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`! If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag) when running `labeler -du` (for example).

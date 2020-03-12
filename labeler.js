@@ -18,7 +18,8 @@ const echo = require('./lib/echo')
 const pkg = require('./package.json')
 
 // Variables
-let labels = fs.readSync()
+const labelFile = './labels.json'
+let labels = fs.readSync(labelFile)
 const helpText = `
 NAME
     labeler - Label manager for GitHub repositories.
@@ -59,12 +60,21 @@ OPTIONS
     -f, --force
         Does not ask for user confirmation.
 
+    -e, --empty-labels
+        Remove every label from the labels.json file.
+
+    -l, --reset-labels-file
+        Reset labels.json by deleting it and creating it with default labels.
+
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under labels.json:
         labeler -dur repositoryName
 
     Same as above but without the confirmation questions:
         labeler -fdur repositoryName
+
+    Delete every label from labels.json and add new labels to it:
+        labeler -en
 `;
 
 // Meow CLI
@@ -106,9 +116,68 @@ const cli = meow(helpText, {
         'force': {
             alias: 'f',
             type: 'boolean'
+        },
+        'empty-labels': {
+            alias: 'e',
+            type: 'boolean'
+        },
+        'reset-labels-file': {
+            alias: 'l',
+            type: 'boolean'
         }
     }
 })
+
+/* --- Start --- */
+console.log()
+
+// Update Notifier
+updateNotifier({ pkg }).notify()
+
+// Variables
+const token = assignFlag('token')
+const owner = assignFlag('owner')
+const repository = assignFlag('repository')
+
+// Main function
+async function main() {
+    // console.log(cli.flags)
+
+    // Warn user if -f
+    if (cli.flags.force) echo.warning('Detected -f, ignoring user confirmation.\n')
+
+    // Check if flags were called correctly
+    checkFlags()
+
+    // Echo owner and repository
+    if (!cli.flags.newLabel || !cli.flags.config) {
+        echo.owner(owner)
+        echo.repository(repository)
+        console.log()
+    }
+
+    if (cli.flags.resetLabelsFile) await resetLabelsFile() // Reset labels.json file
+    if (cli.flags.emptyLabels) await emptyLabels() // Delete all labels from labels.json
+    if (cli.flags.deleteAllLabels) await deleteAllLabels() // Delete all labels from repository
+    if (cli.flags.uploadLabels) await uploadLabels() // Upload custom labels to repository
+    if (cli.flags.config) await cliConfig() // Run the interactive config CLI
+    // Run the interactive "create new label" CLI
+    if (cli.flags.newLabel) {
+        clear()
+        echo.info('Create new labels:')
+        await cliNewLabel()
+    }
+
+    // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
+    if (cli.flags.resetLabelsFile) process.exit()
+
+    // If nothing happens, I'm assuming the user ran without flags
+    echo.error('Missing arguments.')
+    echo.tip('Use -h for help.', true)
+}
+
+// Call main()
+main()
 
 /* --- Functions --- */
 // Returns flag from arguments, or from config
@@ -124,7 +193,7 @@ function assignFlag(flag) {
 
 // Check required flags
 function checkRequiredFlags() {
-    if (!token && !owner && !repo) {
+    if (!token && !owner && !repository) {
         echo.error('Missing arguments.')
         echo.tip('Use -h for help.', true)
     } else if (!token) {
@@ -133,7 +202,7 @@ function checkRequiredFlags() {
     } else if (!owner) {
         echo.error('You need to specify an owner!')
         echo.tip('Use the -o flag.', true)
-    } else if (!repo) {
+    } else if (!repository) {
         echo.error('You need to specify a repository!')
         echo.tip('Use the -r flag.', true)
     }
@@ -141,14 +210,49 @@ function checkRequiredFlags() {
 
 // Check flags
 function checkFlags() {
+    // All flags to copy easily (without cli.flags.force and cli.flags.help)
+    // cli.flags.repository cli.flags.token cli.flags.owner cli.flags.uploadLabels cli.flags.deleteAllLabels cli.flags.newLabel cli.flags.config cli.flags.emptyLabels cli.flags.resetLabelsFile
+
+    // Check for usage of flags that shouldn't be used together
     if (((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config))
-        || (cli.flags.config && cli.flags.newLabel)) {
+        || (cli.flags.config && cli.flags.newLabel)
+        || (cli.flags.emptyLabels && (cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels || cli.flags.config || cli.flags.resetLabelsFile))) {
         echo.error('Wrong usage.')
-        echo.info('Use -h for help.', true)
+        echo.tip('Use -h for help.', true)
     }
 }
 
-// Deletes all labels from a repo
+// Deletes labels.json and creates it again with default values from /lib/fs.js
+async function resetLabelsFile() {
+    echo.info('Resetting labels.json...')
+    fs.deleteSync(labelFile)
+    labels = fs.readSync(labelFile)
+    echo.success('Done!\n')
+}
+
+// Empties all labels from labels.json
+async function emptyLabels() {
+    // Ask if the user is sure
+    if (!cli.flags.force) {
+        const answer = await inquirer.confirmEmptyLabels()
+        if (!answer.emptyLabels) {
+            console.log()
+            echo.abort('Delete labels from labels.json.', true)
+        }
+    }
+
+    // Empty labels.json
+    echo.info('Emptying labels.json...')
+    labels = []
+    fs.writeSync(labelFile, labels)
+    if (cli.flags.newLabel) echo.success('Done.\n')
+    else {
+        console.log()
+        echo.success('Finished!', true)
+    }
+}
+
+// Deletes all labels from a repository
 async function deleteAllLabels() {
     // Check required Flags
     checkRequiredFlags()
@@ -156,15 +260,18 @@ async function deleteAllLabels() {
     // Ask if the user is sure
     if (!cli.flags.force) {
         const answer = await inquirer.confirmDeleteAllLabels()
-        if (!answer.deleteAllLabels) echo.warning('Aborted deletion of all labels from ' + repo + '.', true)
+        if (!answer.deleteAllLabels) {
+            console.log()
+            echo.abort('Delete labels from ' + repository + '.', true)
+        }
     }
-    echo.info(chalk.bold('Deleting labels...'))
+    echo.info(chalk.bold('Deleting labels from repository...'))
 
     // Variables
     let arrayPromises = []
 
-    // Get all labels form repo
-    const allLabels = await axios.getLabels(true, owner, repo)
+    // Get all labels form repository
+    const allLabels = await axios.getLabels(true, owner, repository)
 
     // Push promises (that delete labels) to an array
     for (let i in allLabels.data) {
@@ -179,8 +286,11 @@ async function deleteAllLabels() {
     await Promise.all(arrayPromises)
 
     // Done
-    if (cli.flags.uploadLabels) console.log()
-    else echo.success('Finished!\n', true)
+    if (cli.flags.uploadLabels) echo.success('Done!\n')
+    else {
+        console.log()
+        echo.success('Finished!', true)
+    }
 }
 
 // Upload all labels from labels.json
@@ -191,9 +301,12 @@ async function uploadLabels() {
     // Ask if the user is sure
     if (!cli.flags.force) {
         const answer = await inquirer.confirmUploadLabels()
-        if (!answer.uploadLabels) echo.warning('Aborted upload of all labels to ' + repo + '.', true)
+        if (!answer.uploadLabels) {
+            console.log()
+            echo.abort('Upload labels to ' + repository + '.', true)
+        }
     }
-    echo.info(chalk.bold('Uploading labels...'))
+    echo.info(chalk.bold('Uploading labels from repository...'))
 
     // Variables
     let arrayPromises = []
@@ -204,7 +317,7 @@ async function uploadLabels() {
             false,
             token,
             owner,
-            repo,
+            repository,
             labels[i]
         ))
     }
@@ -213,7 +326,8 @@ async function uploadLabels() {
     await Promise.all(arrayPromises)
 
     // Done
-    echo.success('Finished!\n', true)
+    echo.success('Done!\n')
+    echo.success('Finished!', true)
 }
 
 // Opens the interactive config CLI
@@ -243,7 +357,7 @@ async function cliConfig() {
         else config.remove('repository')
     } else {
         // Exit
-        clear()
+        console.log()
         process.exit()
     }
 
@@ -268,35 +382,10 @@ async function cliNewLabel() {
     }
     if (!dupe) {
         labels.push(answer)
-        fs.writeSync(labels)
-        echo.success('Saved label!')
-    } else echo.error('Label already exists! Please choose another name.')
+        fs.writeSync(labelFile, labels)
+        echo.success('Saved label! Use Ctrl+C to exit.\n')
+    } else echo.error('Label already exists! Please choose another name.\n')
 
     // Call this function again until user exits
     await cliNewLabel()
 }
-
-/* --- Start --- */
-// Update Notifier
-updateNotifier({ pkg }).notify()
-
-// Variables
-const token = assignFlag('token')
-const owner = assignFlag('owner')
-const repo = assignFlag('repository')
-
-// Main function
-async function main() {
-    checkFlags() // Check if flags were called correctly
-    if (cli.flags.deleteAllLabels) await deleteAllLabels() // Delete all labels from a repo
-    if (cli.flags.uploadLabels) await uploadLabels() // Upload custom labels
-    if (cli.flags.config) await cliConfig() // Run the interactive config CLI
-    if (cli.flags.newLabel) await cliNewLabel() // Run the interactive "create new label" CLI
-
-    // If nothing happens, I'm assuming the user ran without flags
-    echo.error('Missing arguments.')
-    echo.tip('Use -h for help.', true)
-}
-
-// Call main()
-main()
