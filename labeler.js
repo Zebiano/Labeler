@@ -8,18 +8,18 @@ const chalk = require('chalk')
 const updateNotifier = require('update-notifier')
 
 // Requires: Libs
-const inquirer = require('./lib/inquirer')
-const config = require('./lib/configstore')
-const axios = require('./lib/axios')
-const fs = require('./lib/fs')
-const echo = require('./lib/echo')
+const inquirer = require('__dirname/lib/inquirer')
+const config = require('__dirname/lib/configstore')
+const axios = require('__dirname/lib/axios')
+const fs = require('__dirname/lib/fs')
+const echo = require('__dirname/lib/echo')
 
 // Require: Files
 const pkg = require('./package.json')
 
 // Variables
-const labelFile = './labels.json'
-let labels = fs.readSync(labelFile)
+const labelFile = 'labels.json'
+let labels = fs.readSync(__dirname + '/' + labelFile)
 const helpText = `
 NAME
     labeler - Label manager for GitHub repositories.
@@ -232,8 +232,8 @@ async function resetLabelsFile() {
     }
 
     echo.info('Resetting labels.json...')
-    fs.deleteSync(labelFile)
-    labels = fs.readSync(labelFile)
+    fs.deleteSync(__dirname + '/' + labelFile)
+    labels = fs.readSync(__dirname + '/' + labelFile)
     echo.success('Done!\n')
 }
 
@@ -251,7 +251,7 @@ async function emptyLabels() {
     // Empty labels.json
     echo.info('Emptying labels.json...')
     labels = []
-    fs.writeSync(labelFile, labels)
+    fs.writeSync(__dirname + '/' + labelFile, labels)
     if (cli.flags.newLabel) echo.success('Done.\n')
     else {
         console.log()
@@ -390,7 +390,7 @@ async function cliNewLabel() {
     }
     if (!dupe) {
         labels.push(answer)
-        fs.writeSync(labelFile, labels)
+        fs.writeSync(__dirname + '/' + labelFile, labels)
         echo.success('Saved label! Use Ctrl+C to exit.\n')
     } else echo.error('Label already exists! Please choose another name.\n')
 
