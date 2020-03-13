@@ -99,11 +99,11 @@ In case you need to access a repository from another owner, simply run the `-o [
 
 #### `labeler -n`
 An interactive CLI to help you add new Labels to the `labels.json` file.
-- **name**: Name of label.
+- **name** `String`: Name of label.
   - *Example:* `Bug :beetle:`
-- **description**: Description of label.
+- **description** `String` (Optional): Description of label.
   - *Example:* `This is a bug.`
-- **color**: Color of label. Hex value, no `#` needed.
+- **color** `Hex`: Color of label.
   - *Example:* `FC271E`
 
 If you want to start fresh, run `labeler -en`. This way, every label inside the `labels.json` file will be removed first.
@@ -121,7 +121,7 @@ This is the file where all your custom labels are stored. Feel free to edit it. 
 [
     {
         "name": "Label name",
-        "color": "FFFFFF",
+        "color": "FC271E",
         "description": "Label Description."
     },
     ...

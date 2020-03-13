@@ -155,7 +155,6 @@ async function main() {
     if (cli.flags.config) await cliConfig() // Run the interactive config CLI
     // Run the interactive "create new label" CLI
     if (cli.flags.newLabel) {
-        clear()
         echo.info('Create new labels:')
         await cliNewLabel()
     }
@@ -273,7 +272,7 @@ async function deleteAllLabels() {
             echo.abort('Delete labels from ' + repository + '.', true)
         }
     }
-    echo.info(chalk.bold('Deleting labels from repository...'))
+    echo.info(chalk.bold('Deleting labels from ' + repository + '...'))
 
     // Variables
     let arrayPromises = []
@@ -314,7 +313,7 @@ async function uploadLabels() {
             echo.abort('Upload labels to ' + repository + '.', true)
         }
     }
-    echo.info(chalk.bold('Uploading labels from repository...'))
+    echo.info(chalk.bold('Uploading labels to ' + repository + '...'))
 
     // Variables
     let arrayPromises = []
@@ -351,21 +350,23 @@ async function cliConfig() {
     let answer = await inquirer.config()
 
     // Check input
-    if (answer.hasOwnProperty('token')) {
-        // Token
-        if (answer.token) config.set(answer)
-        else config.remove('token')
-    } else if (answer.hasOwnProperty('owner')) {
-        // Owner
-        if (answer.owner) config.set(answer)
-        else config.remove('owner')
-    } else if (answer.hasOwnProperty('repository')) {
-        // Repository
-        if (answer.repository) config.set(answer)
-        else config.remove('repository')
-    } else {
-        // Exit
-        process.exit()
+    if (answer) {
+        if (answer.hasOwnProperty('token')) {
+            // Token
+            if (answer.token) config.set(answer)
+            else config.remove('token')
+        } else if (answer.hasOwnProperty('owner')) {
+            // Owner
+            if (answer.owner) config.set(answer)
+            else config.remove('owner')
+        } else if (answer.hasOwnProperty('repository')) {
+            // Repository
+            if (answer.repository) config.set(answer)
+            else config.remove('repository')
+        } else {
+            // Exit
+            process.exit()
+        }
     }
 
     // Call this function again until user exits
