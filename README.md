@@ -1,6 +1,6 @@
 <div align="center">
 	<!-- <img src="Stuff/AppIcon-readme.png" width="200" height="200"> -->
-	<h1>labeler</h1>
+	<h1>Labeler</h1>
 	<p>
 		<b>Easily manage default labels in GitHub repositories</b>
 	</p>
