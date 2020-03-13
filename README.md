@@ -18,7 +18,7 @@
 Because I was sick of always deleting the default labels and uploading my own ones.
 
 ## How?
-By storing your labels in a file called `labels.json`, deleting the default ones in the repository and uploading those from said file.
+By storing custom labels in a file called `labels.json`, deleting the default ones from the repository and uploading those from said file.
 
 ## Installation
 ```
@@ -83,9 +83,9 @@ EXAMPLES
         labeler -en
 ```
 
-I've tried my best to create a tool for everyone. If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`! If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag) when running `labeler -du` (for example).
+I've tried my best to create a tool for everyone. If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`! If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag).
 
-`labeler` comes with some predefined labels, but you can of course use your own. Either edit `labels.json` accordingly, or run `labeler -n` to add a new label through the CLI.
+`labeler` comes with some predefined labels, but you can of course use your own. Either edit `labels.json` accordingly, or run `labeler -en` to remove the default ones and add your labels through the CLI.
 
 ## Commands
 #### `labeler -c`
@@ -99,7 +99,6 @@ In case you need to access a repository from another owner, simply run the `-o [
 
 #### `labeler -n`
 An interactive CLI to help you add new Labels to the `labels.json` file.
-
 - **name**: Name of label.
   - *Example:* `Bug :beetle:`
 - **description**: Description of label.
@@ -107,9 +106,11 @@ An interactive CLI to help you add new Labels to the `labels.json` file.
 - **color**: Color of label. Hex value, no `#` needed.
   - *Example:* `FC271E`
 
+If you want to start fresh, run `labeler -en`. This way, every label inside the `labels.json` file will be removed first.
+
 #### `labeler -fdur [REPOSITORY]`
-A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the `config`!
-- `-f` Does not ask for user confirmation.
+A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the [config](#labeler--c)!
+- `-f` Ignore user confirmation.
 - `-d` Delete all labels from repository.
 - `-u` Upload custom labels to repository.
 - `-r` Specify the repository.
@@ -128,4 +129,4 @@ This is the file where all your custom labels are stored. Feel free to edit it. 
 ```
 
 ## Issues
-You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated! And since you're there already, might as well take a look at the default labels as those are the ones shipped with this package.
+You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated! And since you're there already, might as well take a look at the default labels, as those are the ones shipped with this package.
