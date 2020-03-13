@@ -8,11 +8,11 @@ const chalk = require('chalk')
 const updateNotifier = require('update-notifier')
 
 // Requires: Libs
-const inquirer = require('__dirname/lib/inquirer')
-const config = require('__dirname/lib/configstore')
-const axios = require('__dirname/lib/axios')
-const fs = require('__dirname/lib/fs')
-const echo = require('__dirname/lib/echo')
+const inquirer = require(__dirname + '/lib/inquirer')
+const config = require(__dirname + '/lib/configstore')
+const axios = require(__dirname + '/lib/axios')
+const fs = require(__dirname + '/lib/fs')
+const echo = require(__dirname + '/lib/echo')
 
 // Require: Files
 const pkg = require('./package.json')
