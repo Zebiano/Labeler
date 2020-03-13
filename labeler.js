@@ -132,7 +132,7 @@ const cli = meow(helpText, {
 console.log()
 
 // Update Notifier
-updateNotifier({ pkg }).notify()
+updateNotifier({ pkg }).notify({ isGlobal: true })
 
 // Variables
 const token = assignFlag('token')
@@ -148,14 +148,6 @@ async function main() {
 
     // Check if flags were called correctly
     checkFlags()
-
-    // Echo owner and repository
-    if (!cli.flags.newLabel || !cli.flags.config) {
-        echo.owner(owner)
-        echo.repository(repository)
-        console.log()
-    }
-
     if (cli.flags.resetLabelsFile) await resetLabelsFile() // Reset labels.json file
     if (cli.flags.emptyLabels) await emptyLabels() // Delete all labels from labels.json
     if (cli.flags.deleteAllLabels) await deleteAllLabels() // Delete all labels from repository
@@ -180,6 +172,13 @@ async function main() {
 main()
 
 /* --- Functions --- */
+// Echo the owner and repository
+function echoOwnerRepository() {
+    echo.owner(owner)
+    echo.repository(repository)
+    console.log()
+}
+
 // Returns flag from arguments, or from config
 function assignFlag(flag) {
     if (cli.flags.hasOwnProperty(flag)) {
@@ -224,6 +223,15 @@ function checkFlags() {
 
 // Deletes labels.json and creates it again with default values from /lib/fs.js
 async function resetLabelsFile() {
+    // Ask if the user is sure
+    if (!cli.flags.force) {
+        const answer = await inquirer.confirmResetLabels()
+        if (!answer.resetLabels) {
+            console.log()
+            echo.abort('Reset labels.json.', true)
+        }
+    }
+
     echo.info('Resetting labels.json...')
     fs.deleteSync(labelFile)
     labels = fs.readSync(labelFile)
@@ -254,8 +262,8 @@ async function emptyLabels() {
 
 // Deletes all labels from a repository
 async function deleteAllLabels() {
-    // Check required Flags
-    checkRequiredFlags()
+    checkRequiredFlags() // Check required Flags
+    echoOwnerRepository() // Echo repo and owner
 
     // Ask if the user is sure
     if (!cli.flags.force) {
@@ -357,7 +365,6 @@ async function cliConfig() {
         else config.remove('repository')
     } else {
         // Exit
-        console.log()
         process.exit()
     }
 
