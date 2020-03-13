@@ -99,11 +99,11 @@ In case you need to access a repository from another owner, simply run the `-o [
 
 #### `labeler -n`
 An interactive CLI to help you add new Labels to the `labels.json` file.
-- **name** `String`: Name of label.
+- **name**: Name of label.
   - *Example:* `Bug :beetle:`
-- **description** `String` (Optional): Description of label.
+- **description**: (Optional) Description of label.
   - *Example:* `This is a bug.`
-- **color** `Hex`: Color of label.
+- **color**: Hex color of label.
   - *Example:* `FC271E`
 
 If you want to start fresh, run `labeler -en`. This way, every label inside the `labels.json` file will be removed first.
