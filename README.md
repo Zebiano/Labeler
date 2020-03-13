@@ -12,7 +12,7 @@
 </div>
 
 <!-- Uncomment the following quote whenever the CLI is Failing -->
-> I've encountered a bug where `labels.json` gets saved to the current directory, instead of the package directory. I'm not sure if it could even be considered a bug, as some users might actually like it that way. Though it was not intentional and I personally don't like it. Version [@2.1.1](https://www.npmjs.com/package/labeler/v/2.1.1) uses current directory, version [@2.1.3](https://www.npmjs.com/package/labeler/v/2.1.3) uses package directory. The drawback of using the package directory is having to run `labeler` with sudo, since `fs` needs root permissions to write into the package directory. I'm still unsure on how I'll handle this situation. Pick the version that suits you best for now.
+> I've encountered a bug where `labels.json` gets saved to the current directory, instead of the package directory. I'm not sure if it could even be considered a bug, as some users might actually like it that way. Though it was not intentional and I personally don't like it. Version [@2.1.1](https://www.npmjs.com/package/labeler/v/2.1.1) uses current directory, version [@2.1.4](https://www.npmjs.com/package/labeler/v/2.1.3) uses package directory. The drawback of using the package directory is having to run `labeler` with sudo, since `fs` needs root permissions to write into the package directory. I'm still unsure on how I'll handle this situation. Pick the version that suits you best for now.
 
 ## Why?
 Because I was sick of always deleting the default labels and uploading my own ones.
