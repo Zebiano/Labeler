@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zebscripts/Labeler.git"
+    "url": "git+https://github.com/zebiano/Labeler.git"
   },
   "keywords": [
     "cli",
@@ -20,9 +20,9 @@
   "author": "Sebastião Barros (@Zebiano)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zebscripts/Labeler/issues"
+    "url": "https://github.com/zebiano/Labeler/issues"
   },
-  "homepage": "https://github.com/zebscripts/Labeler#readme",
+  "homepage": "https://github.com/zebiano/Labeler#readme",
   "dependencies": {
     "axios": "^0.19.2",
     "chalk": "^3.0.0",
