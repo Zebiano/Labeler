@@ -55,14 +55,14 @@ OPTIONS
     -u, --upload-labels
         Upload custom labels to repository.
 
-    -f, --force
-        Does not ask for user confirmation.
-
     -e, --empty-labels-file
         Remove every label from the labels.json file.
 
     -R, --reset-labels-file
         Reset labels.json by overwriting labels.json with the default labels.
+
+    -p, --path
+        Returns the path for labels.json file.
 
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under labels.json to the repository:
@@ -122,6 +122,10 @@ const cli = meow(helpText, {
         'reset-labels-file': {
             alias: 'R',
             type: 'boolean'
+        },
+        'path': {
+            alias: 'p',
+            type: 'boolean'
         }
     }
 })
@@ -146,6 +150,7 @@ async function main() {
 
     // Check if flags were called correctly
     checkFlags()
+    if (cli.flags.path) labelsPath() // Return labels.json path
     if (cli.flags.resetLabelsFile) await resetLabelsFile() // Reset labels.json file
     if (cli.flags.emptyLabelsFile) await emptyLabelsFile() // Delete all labels from labels.json
     if (cli.flags.deleteAllLabels) await deleteAllLabels() // Delete all labels from repository
@@ -161,7 +166,7 @@ async function main() {
     }
 
     // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
-    if (cli.flags.resetLabelsFile) process.exit()
+    if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
 
     // If nothing happens, I'm assuming the user ran without flags
     echo.error('Missing arguments.')
@@ -219,6 +224,13 @@ function checkFlags() {
         echo.error('Wrong usage.')
         echo.tip('Use -h for help.', true)
     }
+}
+
+// Echos the path for labels.json
+function labelsPath() {
+    echo.info('Path for labels.json')
+    echo.info(config.path('labels'))
+    console.log()
 }
 
 // Deletes labels.json and creates it again with default values from /lib/fs.js
