@@ -62,7 +62,7 @@ OPTIONS
         Reset labels.json by overwriting labels.json with the default labels.
 
     -p, --path
-        Returns the path for labels.json file.
+        Return the path for labels.json file.
 
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under labels.json to the repository:
