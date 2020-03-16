@@ -122,10 +122,10 @@ This is the file where all your custom labels are stored. Feel free to edit it. 
 	"labels": [
 		{
 			"name": "Label name",
-            "color": "FC271E",
-            "description": "Label Description."
+		        "color": "FC271E",
+		        "description": "Label Description."
 		},
-        ...
+	        ...
 	]
 }
 ```
