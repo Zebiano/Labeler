@@ -303,6 +303,9 @@ async function uploadLabels() {
     // Check required Flags
     checkRequiredFlags()
 
+    // Variables
+    labels = config.getAll('labels')
+
     // Ask if the user is sure
     if (!cli.flags.force) {
         const answer = await inquirer.confirmUploadLabels()
