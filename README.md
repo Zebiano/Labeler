@@ -42,6 +42,9 @@ OPTIONS
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
+    -n, --new-label
+        Launch interactive CLI to store new labels in the labels.json file.
+
     -r, --repository [REPOSITORY]
         Specify GitHub repository name. If not specified uses values in config, else ignores config.
 
@@ -58,10 +61,7 @@ OPTIONS
         Delete all existing labels in repository.
 
     -u, --upload-labels
-        Upload custom labels.
-
-    -n, --new-label
-        Launch interactive CLI to store new labels in the labels.json file.
+        Upload custom labels to repository.
 
     -f, --force
         Does not ask for user confirmation.
@@ -70,20 +70,20 @@ OPTIONS
         Remove every label from the labels.json file.
 
     -R, --reset-labels-file
-        Reset labels.json by deleting it and creating it with default labels.
+        Reset labels.json by overwriting labels.json with the default labels.
 
 EXAMPLES
-    Delete all labels from the repository and upload custom ones stored under labels.json:
-        labeler -dur repositoryName
+    Delete all labels from the repository and upload custom ones stored under labels.json to the repository:
+        labeler -dur [REPOSITORY]
 
     Same as above but without the confirmation questions:
-        labeler -fdur repositoryName
+        labeler -fdur [REPOSITORY]
 
     Delete every label from labels.json and add new labels to it:
         labeler -en
 ```
 
-I've tried my best to create a tool for everyone. If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`! If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag).
+I've tried my best to create a tool for everyone! If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`. If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag).
 
 `labeler` comes with some predefined labels, but you can of course use your own. By running  `labeler -en`, you'll start a fresh new file. The `path` to the file will be in the terminal, in case you prefer to open and edit it with your editor of choice.
 
@@ -98,7 +98,7 @@ Interactive CLI for the config. Most likely the first command to run. I recommen
 In case you need to access a repository from another owner, simply run the `-o [OWNER]` flag and the one stored in the config will be ignored.
 
 #### `labeler -n`
-An interactive CLI to help you add new Labels to the `labels.json` file. It also shows the files `path`.
+An interactive CLI to help you add new Labels to the `labels.json` file. It also shows the `path`.
 - **name**: Name of label.
   - *Example:* `Bug :beetle:`
 - **description**: (Optional) Description of label.
@@ -110,22 +110,24 @@ If you want to start fresh, run `labeler -en`. This way, every label inside the 
 
 #### `labeler -fdur [REPOSITORY]`
 A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the [config](#labeler--c)!
-- `-f` Ignore user confirmation.
-- `-d` Delete all labels from repository.
-- `-u` Upload custom labels to repository.
-- `-r` Specify the repository.
+- `-f` Ignore user confirmation
+- `-d` Delete all labels from repository
+- `-u` Upload custom labels to repository
+- `-r` Specify the repository
 
 ## `labels.json`
 This is the file where all your custom labels are stored. Feel free to edit it. Just keep in mind it has to have the following structure:
 ```
-[
-    {
-        "name": "Label name",
-        "color": "FC271E",
-        "description": "Label Description."
-    },
-    ...
-]
+{
+	"labels": [
+		{
+			"name": "Label name",
+            "color": "FC271E",
+            "description": "Label Description."
+		},
+        ...
+	]
+}
 ```
 
 ## Issues

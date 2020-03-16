@@ -34,6 +34,9 @@ OPTIONS
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
+    -n, --new-label
+        Launch interactive CLI to store new labels in the labels.json file.
+
     -r, --repository [REPOSITORY]
         Specify GitHub repository name. If not specified uses values in config, else ignores config.
 
@@ -50,10 +53,7 @@ OPTIONS
         Delete all existing labels in repository.
 
     -u, --upload-labels
-        Upload custom labels.
-
-    -n, --new-label
-        Launch interactive CLI to store new labels in the labels.json file.
+        Upload custom labels to repository.
 
     -f, --force
         Does not ask for user confirmation.
@@ -62,14 +62,14 @@ OPTIONS
         Remove every label from the labels.json file.
 
     -R, --reset-labels-file
-        Reset labels.json by deleting it and creating it with default labels.
+        Reset labels.json by overwriting labels.json with the default labels.
 
 EXAMPLES
-    Delete all labels from the repository and upload custom ones stored under labels.json:
-        labeler -dur repositoryName
+    Delete all labels from the repository and upload custom ones stored under labels.json to the repository:
+        labeler -dur [REPOSITORY]
 
     Same as above but without the confirmation questions:
-        labeler -fdur repositoryName
+        labeler -fdur [REPOSITORY]
 
     Delete every label from labels.json and add new labels to it:
         labeler -en
