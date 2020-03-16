@@ -119,14 +119,14 @@ A very specific example, yet the one I think will be the most used. It's assumed
 This is the file where all your custom labels are stored. Feel free to edit it. Just keep in mind it has to have the following structure:
 ```
 {
-	"labels": [
-		{
-			"name": "Label name",
-		        "color": "FC271E",
-		        "description": "Label Description."
-		},
-	        ...
-	]
+    "labels": [
+        {
+            "name": "Label name",
+            "color": "FC271E",
+            "description": "Label Description."
+        },
+        ...
+    ]
 }
 ```
 
