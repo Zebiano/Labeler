@@ -29,7 +29,6 @@
     "chalk-pipe": "^3.0.0",
     "clear": "^0.1.0",
     "configstore": "^5.0.1",
-    "fs": "0.0.1-security",
     "inquirer": "^7.0.5",
     "meow": "^6.0.1",
     "update-notifier": "^4.1.0"

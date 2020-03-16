@@ -8,18 +8,16 @@ const chalk = require('chalk')
 const updateNotifier = require('update-notifier')
 
 // Requires: Libs
-const inquirer = require(__dirname + '/lib/inquirer')
-const config = require(__dirname + '/lib/configstore')
-const axios = require(__dirname + '/lib/axios')
-const fs = require(__dirname + '/lib/fs')
-const echo = require(__dirname + '/lib/echo')
+const inquirer = require('./lib/inquirer')
+const config = require('./lib/configstore')
+const axios = require('./lib/axios')
+const echo = require('./lib/echo')
 
 // Require: Files
 const pkg = require('./package.json')
 
 // Variables
-const labelFile = 'labels.json'
-let labels = fs.readSync(__dirname + '/' + labelFile)
+let labels = config.getAll('labels')
 const helpText = `
 NAME
     labeler - Label manager for GitHub repositories.
@@ -29,7 +27,7 @@ SYNOPSIS
 
 DESCRIPTION
     Create custom labels on GitHub repositories automatically.
-    This CLI helps you organize your GitHub labels by storing them in a file called labels.json. You can add new labels through the CLI with the -n flag.
+    This CLI helps you organize your GitHub labels by storing them in a labels.json file. You can add new labels through the CLI with the -n flag.
     Whenever you create a new repository, instead of manually uploading your labels, use this CLI to have it done automatically!
 
 OPTIONS
@@ -60,10 +58,10 @@ OPTIONS
     -f, --force
         Does not ask for user confirmation.
 
-    -e, --empty-labels
+    -e, --empty-labels-file
         Remove every label from the labels.json file.
 
-    -l, --reset-labels-file
+    -R, --reset-labels-file
         Reset labels.json by deleting it and creating it with default labels.
 
 EXAMPLES
@@ -117,12 +115,12 @@ const cli = meow(helpText, {
             alias: 'f',
             type: 'boolean'
         },
-        'empty-labels': {
+        'empty-labels-file': {
             alias: 'e',
             type: 'boolean'
         },
         'reset-labels-file': {
-            alias: 'l',
+            alias: 'R',
             type: 'boolean'
         }
     }
@@ -149,12 +147,15 @@ async function main() {
     // Check if flags were called correctly
     checkFlags()
     if (cli.flags.resetLabelsFile) await resetLabelsFile() // Reset labels.json file
-    if (cli.flags.emptyLabels) await emptyLabels() // Delete all labels from labels.json
+    if (cli.flags.emptyLabelsFile) await emptyLabelsFile() // Delete all labels from labels.json
     if (cli.flags.deleteAllLabels) await deleteAllLabels() // Delete all labels from repository
     if (cli.flags.uploadLabels) await uploadLabels() // Upload custom labels to repository
     if (cli.flags.config) await cliConfig() // Run the interactive config CLI
     // Run the interactive "create new label" CLI
     if (cli.flags.newLabel) {
+        echo.tip('If you want to edit the file, here\'s the path:')
+        echo.tip(config.path('labels'))
+        console.log()
         echo.info('Create new labels:')
         await cliNewLabel()
     }
@@ -182,8 +183,8 @@ function echoOwnerRepository() {
 function assignFlag(flag) {
     if (cli.flags.hasOwnProperty(flag)) {
         return cli.flags[flag]
-    } else if (config.has(flag)) {
-        return config.get(flag)
+    } else if (config.has('config', flag)) {
+        return config.get('config', flag)
     } else {
         return null
     }
@@ -209,12 +210,12 @@ function checkRequiredFlags() {
 // Check flags
 function checkFlags() {
     // All flags to copy easily (without cli.flags.force and cli.flags.help)
-    // cli.flags.repository cli.flags.token cli.flags.owner cli.flags.uploadLabels cli.flags.deleteAllLabels cli.flags.newLabel cli.flags.config cli.flags.emptyLabels cli.flags.resetLabelsFile
+    // cli.flags.repository cli.flags.token cli.flags.owner cli.flags.uploadLabels cli.flags.deleteAllLabels cli.flags.newLabel cli.flags.config cli.flags.emptyLabelsFile cli.flags.resetLabelsFile
 
     // Check for usage of flags that shouldn't be used together
     if (((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config))
         || (cli.flags.config && cli.flags.newLabel)
-        || (cli.flags.emptyLabels && (cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels || cli.flags.config || cli.flags.resetLabelsFile))) {
+        || (cli.flags.emptyLabelsFile && (cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels || cli.flags.config || cli.flags.resetLabelsFile))) {
         echo.error('Wrong usage.')
         echo.tip('Use -h for help.', true)
     }
@@ -232,13 +233,12 @@ async function resetLabelsFile() {
     }
 
     echo.info('Resetting labels.json...')
-    fs.deleteSync(__dirname + '/' + labelFile)
-    labels = fs.readSync(__dirname + '/' + labelFile)
+    config.resetLabels()
     echo.success('Done!\n')
 }
 
 // Empties all labels from labels.json
-async function emptyLabels() {
+async function emptyLabelsFile() {
     // Ask if the user is sure
     if (!cli.flags.force) {
         const answer = await inquirer.confirmEmptyLabels()
@@ -250,12 +250,10 @@ async function emptyLabels() {
 
     // Empty labels.json
     echo.info('Emptying labels.json...')
-    labels = []
-    fs.writeSync(__dirname + '/' + labelFile, labels)
+    config.set('labels', { 'labels': [] })
     if (cli.flags.newLabel) echo.success('Done.\n')
     else {
-        console.log()
-        echo.success('Finished!', true)
+        echo.success('Done.\n', true)
     }
 }
 
@@ -343,7 +341,7 @@ async function cliConfig() {
 
     // Display current config
     echo.info("Current config:")
-    console.log(config.getAll())
+    console.log(config.getAll('config'))
     console.log()
 
     // Get config input from user
@@ -353,16 +351,16 @@ async function cliConfig() {
     if (answer) {
         if (answer.hasOwnProperty('token')) {
             // Token
-            if (answer.token) config.set(answer)
-            else config.remove('token')
+            if (answer.token) config.set('config', answer)
+            else config.remove('config', 'token')
         } else if (answer.hasOwnProperty('owner')) {
             // Owner
-            if (answer.owner) config.set(answer)
-            else config.remove('owner')
+            if (answer.owner) config.set('config', answer)
+            else config.remove('config', 'owner')
         } else if (answer.hasOwnProperty('repository')) {
             // Repository
-            if (answer.repository) config.set(answer)
-            else config.remove('repository')
+            if (answer.repository) config.set('config', answer)
+            else config.remove('config', 'repository')
         } else {
             // Exit
             process.exit()
@@ -376,6 +374,7 @@ async function cliConfig() {
 // Opens the interactive "create new label" CLI
 async function cliNewLabel() {
     // Variables
+    labels = config.getAll('labels')
     let dupe = false
 
     // Get config input from user
@@ -390,9 +389,9 @@ async function cliNewLabel() {
     }
     if (!dupe) {
         labels.push(answer)
-        fs.writeSync(__dirname + '/' + labelFile, labels)
+        config.set('labels', { 'labels': labels })
         echo.success('Saved label! Use Ctrl+C to exit.\n')
-    } else echo.error('Label already exists! Please choose another name.\n')
+    } else echo.error('Label "' + answer.name + '" already exists! Please choose another name.\n')
 
     // Call this function again until user exits
     await cliNewLabel()

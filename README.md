@@ -6,19 +6,19 @@
 	</p>
 
   <!-- Badges -->
-  <!-- <a href="#usage" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Passing-green.svg"></img></a> -->
-  <a href="#issues" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Partial-orange.svg"></img></a>
+  <a href="#usage" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Passing-green.svg"></img></a>
+  <!-- <a href="#issues" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Partial-orange.svg"></img></a> -->
   <!-- <a href="#issues" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Failing-red.svg"></img></a> -->
 </div>
 
 <!-- Uncomment the following quote whenever the CLI is Failing -->
-> I've encountered a bug where `labels.json` gets saved to the current directory, instead of the package directory. I'm not sure if it could even be considered a bug, as some users might actually like it that way. Though it was not intentional and I personally don't like it. Version [@2.1.1](https://www.npmjs.com/package/labeler/v/2.1.1) uses current directory, version [@2.1.4](https://www.npmjs.com/package/labeler/v/2.1.4) uses package directory. The drawback of using the package directory is having to run `labeler` with sudo, since `fs` needs root permissions to write into the package directory. I'm still unsure on how I'll handle this situation. Pick the version that suits you best for now.
+<!-- > Why is it failing? -->
 
 ## Why?
 Because I was sick of always deleting the default labels and uploading my own ones.
 
 ## How?
-By storing custom labels in a file called `labels.json`, deleting the default ones from the repository and uploading those from said file.
+By storing custom labels in a `labels.json` file, deleting the default ones from the repository and uploading those from said file.
 
 ## Installation
 ```
@@ -35,7 +35,7 @@ SYNOPSIS
 
 DESCRIPTION
     Create custom labels on GitHub repositories automatically.
-    This CLI helps you organize your GitHub labels by storing them in a file called labels.json. You can add new labels through the CLI with the -n flag.
+    This CLI helps you organize your GitHub labels by storing them in a labels.json file. You can add new labels through the CLI with the -n flag.
     Whenever you create a new repository, instead of manually uploading your labels, use this CLI to have it done automatically!
 
 OPTIONS
@@ -66,10 +66,10 @@ OPTIONS
     -f, --force
         Does not ask for user confirmation.
 
-    -e, --empty-labels
+    -e, --empty-labels-file
         Remove every label from the labels.json file.
 
-    -l, --reset-labels-file
+    -R, --reset-labels-file
         Reset labels.json by deleting it and creating it with default labels.
 
 EXAMPLES
@@ -85,7 +85,7 @@ EXAMPLES
 
 I've tried my best to create a tool for everyone. If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`! If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag).
 
-`labeler` comes with some predefined labels, but you can of course use your own. Either edit `labels.json` accordingly, or run `labeler -en` to remove the default ones and add your labels through the CLI.
+`labeler` comes with some predefined labels, but you can of course use your own. By running  `labeler -en`, you'll start a fresh new file. The `path` to the file will be in the terminal, in case you prefer to open and edit it with your editor of choice.
 
 ## Commands
 #### `labeler -c`
@@ -98,7 +98,7 @@ Interactive CLI for the config. Most likely the first command to run. I recommen
 In case you need to access a repository from another owner, simply run the `-o [OWNER]` flag and the one stored in the config will be ignored.
 
 #### `labeler -n`
-An interactive CLI to help you add new Labels to the `labels.json` file.
+An interactive CLI to help you add new Labels to the `labels.json` file. It also shows the files `path`.
 - **name**: Name of label.
   - *Example:* `Bug :beetle:`
 - **description**: (Optional) Description of label.
