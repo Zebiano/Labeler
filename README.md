@@ -116,7 +116,7 @@ A very specific example, yet the one I think will be the most used. It's assumed
 - `-r` Specify the repository
 
 ## `labels.json`
-This is the file where all your custom labels are stored. Feel free to edit it. Just keep in mind it has to have the following structure:
+This is the file where all your custom labels are stored. Feel free to edit it. Run `labeler -p` to get the path. Just keep in mind it has to have the following structure:
 ```
 {
     "labels": [
