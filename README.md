@@ -104,7 +104,7 @@ Interactive CLI for the config. Most likely the first command to run. I recommen
 In case you need to access a repository from another owner, simply run the `-o [OWNER]` flag and the one stored in the config will be ignored.
 
 #### `labeler -n`
-An interactive CLI to help you add new Labels to the `labels.json` file. It also shows the `path`.
+An interactive CLI to help you add new Labels to the `labels.json` file. You'll be asked wether you want to start a new file, or add labels to the already existing one. It also shows the `path`.
 - **name**: Name of label.
   - *Example:* `Bug :beetle:`
 - **description**: (Optional) Description of label.
@@ -112,7 +112,9 @@ An interactive CLI to help you add new Labels to the `labels.json` file. It also
 - **color**: Hex color of label.
   - *Example:* `FC271E`
 
-If you want to start fresh, run `labeler -en`. This way, every label inside the `labels.json` file will be removed first.
+Alternatively, you can also run `labeler -en`. This way, every label inside the `labels.json` file will be removed first. 
+
+*Note:* Running `labeler -fn` will bypass the question and default to "keep labels file as is".
 
 #### `labeler -fdur [REPOSITORY]`
 A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the [config](#labeler--c)!

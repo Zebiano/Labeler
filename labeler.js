@@ -163,7 +163,7 @@ async function main() {
         console.log()
 
         // Ask if the user wants a fresh file or not
-        if (!cli.flags.force) {
+        if (!cli.flags.force && !cli.flags.emptyLabelsFile) {
             const answerFresh = await inquirer.choiceFreshNewLabels()
             if (answerFresh) config.set('labels', { 'labels': [] })
             console.log()
