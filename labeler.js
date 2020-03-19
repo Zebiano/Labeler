@@ -159,11 +159,20 @@ async function main() {
     // Run the interactive "create new label" CLI
     if (cli.flags.newLabel) {
         echo.tip('If you want to edit the file, here\'s the path:')
-        echo.tip(config.path('labels'))
+        echo.info(config.path('labels'))
         console.log()
+
+        // Ask if the user wants a fresh file or not
+        if (!cli.flags.force) {
+            const answerFresh = await inquirer.choiceFreshNewLabels()
+            if (answerFresh) config.set('labels', { 'labels': [] })
+            console.log()
+        }
+
         echo.info('Create new labels:')
         await cliNewLabel()
     }
+    if (cli.input[0] == "secret") echo.rainbow()
 
     // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
     if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()

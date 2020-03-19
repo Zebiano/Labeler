@@ -13,8 +13,8 @@
 
   <!-- Badges -->
   <a href="#usage" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Passing-green.svg"></img></a>
-  <!-- <a href="#issues" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Partial-orange.svg"></img></a> -->
-  <!-- <a href="#issues" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Failing-red.svg"></img></a> -->
+  <!-- <a alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Partial-orange.svg"></img></a> -->
+  <!-- <a alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Failing-red.svg"></img></a> -->
 </div>
 
 <!-- Uncomment the following quote whenever the CLI is Failing -->
@@ -136,5 +136,5 @@ This is the file where all your custom labels are stored. Feel free to edit it. 
 }
 ```
 
-## Issues
-You tell me. Make sure to check the [issues](https://github.com/zebscripts/Labeler/issues) out, I'll try my best to keep them updated! And since you're there already, might as well take a look at the default labels, as those are the ones shipped with this package.
+## Donations
+I will never force nor expect anyone to send me money. If you feel like I deserve a [virtual ~~coffee~~ tea](https://www.buymeacoffee.com/Zebiano), that's your own (and very kind) decision. Thank you for that. Really.
