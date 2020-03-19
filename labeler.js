@@ -48,6 +48,9 @@ OPTIONS
 
     -h, --help
         Display this help page.
+        
+    -f, --force
+        Ignore user confirmation.
 
     -d, --delete-all-labels
         Delete all existing labels in repository.

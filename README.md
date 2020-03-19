@@ -62,6 +62,9 @@ OPTIONS
 
     -h, --help
         Display this help page.
+        
+    -f, --force
+        Ignore user confirmation.
 
     -d, --delete-all-labels
         Delete all existing labels in repository.
@@ -112,9 +115,9 @@ An interactive CLI to help you add new Labels to the `labels.json` file. You'll 
 - **color**: Hex color of label.
   - *Example:* `FC271E`
 
-Alternatively, you can also run `labeler -en`. This way, every label inside the `labels.json` file will be removed first. 
+Alternatively, run `labeler -en`. This way, every label inside the `labels.json` file will be removed first. 
 
-*Note:* Running `labeler -fn` will bypass the question and default to "keep labels file as is".
+*Note:* Running `labeler -fn` will bypass the question, which defaults to "keep labels file as is".
 
 #### `labeler -fdur [REPOSITORY]`
 A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the [config](#labeler--c)!
