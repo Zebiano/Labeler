@@ -126,10 +126,7 @@ A very specific example, yet the one I think will be the most used. It's assumed
 - `-u` Upload custom labels to repository
 - `-r` Specify the repository
 
-Example:
-```
-labeler -fdur Labeler
-```
+Example: `labeler -fdur Labeler`
 
 ## `labels.json`
 This is the file where all your custom labels are stored. Feel free to edit it. Run `labeler -p` to get the path. Just keep in mind it has to have the following structure:
