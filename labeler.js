@@ -69,10 +69,10 @@ OPTIONS
 
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under labels.json to the repository:
-        labeler -dur [REPOSITORY]
+        labeler -dur Labeler
 
     Same as above but without the confirmation questions:
-        labeler -fdur [REPOSITORY]
+        labeler -fdur Labeler
 
     Delete every label from labels.json and add new labels to it:
         labeler -en

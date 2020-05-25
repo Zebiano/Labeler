@@ -83,10 +83,10 @@ OPTIONS
 
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under labels.json to the repository:
-        labeler -dur [REPOSITORY]
+        labeler -dur Labeler
 
     Same as above but without the confirmation questions:
-        labeler -fdur [REPOSITORY]
+        labeler -fdur Labeler
 
     Delete every label from labels.json and add new labels to it:
         labeler -en
@@ -125,6 +125,11 @@ A very specific example, yet the one I think will be the most used. It's assumed
 - `-d` Delete all labels from repository
 - `-u` Upload custom labels to repository
 - `-r` Specify the repository
+
+Example:
+```
+labeler -fdur Labeler
+```
 
 ## `labels.json`
 This is the file where all your custom labels are stored. Feel free to edit it. Run `labeler -p` to get the path. Just keep in mind it has to have the following structure:
