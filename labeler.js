@@ -300,7 +300,7 @@ async function deleteAllLabels() {
     let arrayPromises = []
 
     // Get all labels form repository
-    const allLabels = await axios.getLabels(true, owner, repository)
+    const allLabels = await axios.getLabels(true, token, owner, repository)
 
     // Push promises (that delete labels) to an array
     for (let i in allLabels.data) {
