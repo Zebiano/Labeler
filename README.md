@@ -70,7 +70,7 @@ OPTIONS
         Delete all existing labels in repository.
 
     -u, --upload-labels
-        Upload custom labels to repository.
+        Upload custom labels to repository. Skips already existing labels.
 
     -e, --empty-labels-file
         Remove every label from the labels.json file.
@@ -142,6 +142,3 @@ This is the file where all your custom labels are stored. Feel free to edit it. 
     ]
 }
 ```
-
-## Donations
-I will never force nor expect anyone to send me money. If you feel like I deserve a [virtual ~~coffee~~ tea](https://www.buymeacoffee.com/Zebiano), that's your own (and very kind) decision. Thank you for that. Really.

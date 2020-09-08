@@ -181,7 +181,7 @@ async function main() {
     if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
 
     // If nothing happens, I'm assuming the user ran without flags
-    echo.error('Missing arguments.')
+    echo.error('Missing arguments. Running version ' + pkg.version + '.')
     echo.tip('Use -h for help.', true)
 }
 
@@ -245,7 +245,7 @@ function labelsPath() {
     console.log()
 }
 
-// Deletes labels.json and creates it again with default values from /lib/fs.js
+// Deletes labels.json and creates it again with default values from /lib/labels.json
 async function resetLabelsFile() {
     // Ask if the user is sure
     if (!cli.flags.force) {
