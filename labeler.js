@@ -56,7 +56,7 @@ OPTIONS
         Delete all existing labels in repository.
 
     -u, --upload-labels
-        Upload custom labels to repository.
+        Upload custom labels to repository. Skips already existing labels.
 
     -e, --empty-labels-file
         Remove every label from the labels.json file.
