@@ -181,8 +181,9 @@ async function main() {
     if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
 
     // If nothing happens, I'm assuming the user ran without flags
-    echo.error('Missing arguments. Running version ' + pkg.version + '.')
-    echo.tip('Use -h for help.', true)
+    echo.error('Missing arguments.')
+    echo.tip('Use -h for help.')
+    echo.info('Running version ' + pkg.version + '.', true)
 }
 
 // Call main()
