@@ -31,6 +31,9 @@ DESCRIPTION
     Whenever you create a new repository, instead of manually uploading your labels, use this CLI to have it done automatically!
 
 OPTIONS
+    -h, --help
+        Display this help page.
+
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
@@ -41,14 +44,14 @@ OPTIONS
         Specify GitHub repository name. If not specified uses values in config, else ignores config.
 
     -o, --owner [OWNER]
-        Specify owner of the repository. If not specified uses values in config, else ignores config.
+        Specify owner of repository. If not specified uses values in config, else ignores config.
 
     -t, --token [TOKEN]
-        Specify Personal Access Token. If not specified uses values in config, else ignores config.
+        Specify personal access token. If not specified uses values in config, else ignores config.
 
-    -h, --help
-        Display this help page.
-        
+    -H, --host [HOST]
+        Specify host. If not specified uses values in config, else ignores config.
+
     -f, --force
         Ignore user confirmation.
 
@@ -76,12 +79,19 @@ EXAMPLES
 
     Delete every label from labels.json and add new labels to it:
         labeler -en
+
+    Using GitHub Enterprise hosts:
+        labeler -dur Labeler -H github.yourhost.com
 `;
 
 // Meow CLI
 const cli = meow(helpText, {
     description: false,
     flags: {
+        'help': {
+            alias: 'h',
+            type: 'boolean'
+        },
         'config': {
             alias: 'c',
             type: 'boolean'
@@ -94,13 +104,13 @@ const cli = meow(helpText, {
             alias: 'o',
             type: 'string'
         },
+        'host': {
+            alias: 'H',
+            type: 'string'
+        },
         'token': {
             alias: 't',
             type: 'string'
-        },
-        'help': {
-            alias: 'h',
-            type: 'boolean'
         },
         'delete-all-labels': {
             alias: 'd',
@@ -143,39 +153,25 @@ updateNotifier({ pkg }).notify({ isGlobal: true })
 const token = assignFlag('token')
 const owner = assignFlag('owner')
 const repository = assignFlag('repository')
+const host = assignFlag('host')
 
 // Main function
 async function main() {
-    // console.log(cli.flags)
-
     // Warn user if -f
     if (cli.flags.force) echo.warning('Detected -f, ignoring user confirmation.\n')
 
     // Check if flags were called correctly
     checkFlags()
+
+    // Run functions according to flags
     if (cli.flags.path) labelsPath() // Return labels.json path
     if (cli.flags.resetLabelsFile) await resetLabelsFile() // Reset labels.json file
     if (cli.flags.emptyLabelsFile) await emptyLabelsFile() // Delete all labels from labels.json
     if (cli.flags.deleteAllLabels) await deleteAllLabels() // Delete all labels from repository
     if (cli.flags.uploadLabels) await uploadLabels() // Upload custom labels to repository
     if (cli.flags.config) await cliConfig() // Run the interactive config CLI
-    // Run the interactive "create new label" CLI
-    if (cli.flags.newLabel) {
-        echo.tip('If you want to edit the file, here\'s the path:')
-        echo.info(config.path('labels'))
-        console.log()
-
-        // Ask if the user wants a fresh file or not
-        if (!cli.flags.force && !cli.flags.emptyLabelsFile) {
-            const answerFresh = await inquirer.choiceFreshNewLabels()
-            if (answerFresh) config.set('labels', { 'labels': [] })
-            console.log()
-        }
-
-        echo.info('Create new labels:')
-        await cliNewLabel()
-    }
-    if (cli.input[0] == "secret") echo.rainbow()
+    if (cli.flags.newLabel) await cliNewLabel() // Run the interactive "create new label" CLI
+    if (cli.input[0] == "secret") echo.rainbow() // :)
 
     // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
     if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
@@ -204,7 +200,8 @@ function assignFlag(flag) {
     } else if (config.has('config', flag)) {
         return config.get('config', flag)
     } else {
-        return null
+        if (flag == 'host') return 'api.github.com'
+        else return null
     }
 }
 
@@ -227,13 +224,15 @@ function checkRequiredFlags() {
 
 // Check flags
 function checkFlags() {
+    // console.log(cli.flags)
     // All flags to copy easily (without cli.flags.force and cli.flags.help)
-    // cli.flags.repository cli.flags.token cli.flags.owner cli.flags.uploadLabels cli.flags.deleteAllLabels cli.flags.newLabel cli.flags.config cli.flags.emptyLabelsFile cli.flags.resetLabelsFile
+    // cli.flags.repository cli.flags.token cli.flags.owner cli.flags.host cli.flags.uploadLabels cli.flags.deleteAllLabels cli.flags.newLabel cli.flags.config cli.flags.emptyLabelsFile cli.flags.resetLabelsFile
 
     // Check for usage of flags that shouldn't be used together
-    if (((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config))
+    // If (((Flags) && (Flags)) || (cli.flags.config && cli.flags.newLabel) || (cli.flags.emptyLabelsFile && (Flags)))
+    if (((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.host || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config))
         || (cli.flags.config && cli.flags.newLabel)
-        || (cli.flags.emptyLabelsFile && (cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.uploadLabels || cli.flags.deleteAllLabels || cli.flags.config || cli.flags.resetLabelsFile))) {
+        || (cli.flags.emptyLabelsFile && (cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.host || cli.flags.uploadLabels || cli.flags.deleteAllLabels || cli.flags.config || cli.flags.resetLabelsFile))) {
         echo.error('Wrong usage.')
         echo.tip('Use -h for help.', true)
     }
@@ -246,7 +245,7 @@ function labelsPath() {
     console.log()
 }
 
-// Deletes labels.json and creates it again with default values from /lib/labels.json
+// Deletes labels.json and creates it again with default values from labels.json
 async function resetLabelsFile() {
     // Ask if the user is sure
     if (!cli.flags.force) {
@@ -301,7 +300,7 @@ async function deleteAllLabels() {
     let arrayPromises = []
 
     // Get all labels form repository
-    const allLabels = await axios.getLabels(true, token, owner, repository)
+    const allLabels = await axios.getLabels(true, token, owner, host, repository)
 
     // Push promises (that delete labels) to an array
     for (let i in allLabels.data) {
@@ -350,6 +349,7 @@ async function uploadLabels() {
             false,
             token,
             owner,
+            host,
             repository,
             labels[i]
         ))
@@ -389,6 +389,10 @@ async function cliConfig() {
             // Repository
             if (answer.repository) config.set('config', answer)
             else config.remove('config', 'repository')
+        } else if (answer.hasOwnProperty('host')) {
+            // Host
+            if (answer.host) config.set('config', answer)
+            else config.remove('config', 'host')
         } else {
             // Exit
             process.exit()
@@ -401,6 +405,19 @@ async function cliConfig() {
 
 // Opens the interactive "create new label" CLI
 async function cliNewLabel() {
+    echo.tip('If you want to edit the file, here\'s the path:')
+    echo.info(config.path('labels'))
+    console.log()
+
+    // Ask if the user wants a fresh file or not
+    if (!cli.flags.force && !cli.flags.emptyLabelsFile) {
+        const answerFresh = await inquirer.choiceFreshNewLabels()
+        if (answerFresh) config.set('labels', { 'labels': [] })
+        console.log()
+    }
+
+    echo.info('Create new labels:')
+
     // Variables
     labels = config.getAll('labels')
     let dupe = false

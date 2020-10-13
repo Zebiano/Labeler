@@ -45,6 +45,9 @@ DESCRIPTION
     Whenever you create a new repository, instead of manually uploading your labels, use this CLI to have it done automatically!
 
 OPTIONS
+    -h, --help
+        Display this help page.
+
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
@@ -55,14 +58,14 @@ OPTIONS
         Specify GitHub repository name. If not specified uses values in config, else ignores config.
 
     -o, --owner [OWNER]
-        Specify owner of the repository. If not specified uses values in config, else ignores config.
+        Specify owner of repository. If not specified uses values in config, else ignores config.
 
     -t, --token [TOKEN]
-        Specify Personal Access Token. If not specified uses values in config, else ignores config.
+        Specify personal access token. If not specified uses values in config, else ignores config.
 
-    -h, --help
-        Display this help page.
-        
+    -H, --host [HOST]
+        Specify host. If not specified uses values in config, else ignores config.
+
     -f, --force
         Ignore user confirmation.
 
@@ -90,6 +93,9 @@ EXAMPLES
 
     Delete every label from labels.json and add new labels to it:
         labeler -en
+
+    Using GitHub Enterprise hosts:
+        labeler -dur Labeler -H github.yourhost.com
 ```
 
 I've tried my best to create a tool for everyone! If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`. If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag).
@@ -103,6 +109,7 @@ Interactive CLI for the config. Most likely the first command to run. I recommen
 - **token**: Personal GitHub Access Token. Create one called "Labeler" [here](https://github.com/settings/tokens) with the following permissions: `admin:org, repo`
 - **owner**: Also known as the username. In [my case](https://github.com/Zebiano) it's `Zebiano` for example.
 - **repository**: Name of the repository. As an example, this repo would be `labeler`. It is **not recommended** to set this setting as it may cause non-intentional deletions of labels.
+- **host**: Custom host, useful for GitHub Enterprise Instances. For example `github.yourhost.com`.
 
 In case you need to access a repository from another owner, simply run the `-o [OWNER]` flag and the one stored in the config will be ignored.
 
@@ -117,16 +124,21 @@ An interactive CLI to help you add new Labels to the `labels.json` file. You'll 
 
 Alternatively, run `labeler -en`. This way, every label inside the `labels.json` file will be removed first. 
 
-*Note:* Running `labeler -fn` will bypass the question, which defaults to "keep labels file as is".
+*Note:* Running `labeler -fn` will bypass the question, which defaults to "keep file as is".
 
 #### `labeler -fdur [REPOSITORY]`
 A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the [config](#labeler--c)!
-- `-f` Ignore user confirmation
-- `-d` Delete all labels from repository
-- `-u` Upload custom labels to repository
-- `-r` Specify the repository
+- `-f`: Ignore user confirmation
+- `-d`: Delete all labels from repository
+- `-u`: Upload custom labels to repository
+- `-r`: Specify the repository
 
 Example: `labeler -fdur Labeler`
+
+#### `labeler -H [HOST]`
+In case you're using a custom host (for example a GitHub Enterprise host), use this flag to specify it. You may as well save the host in the [config](#labeler--c).
+
+Example: `labeler -fdur Labeler -H github.yourhost.com`
 
 ## `labels.json`
 This is the file where all your custom labels are stored. Feel free to edit it. Run `labeler -p` to get the path. Just keep in mind it has to have the following structure:
