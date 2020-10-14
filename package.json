@@ -3,6 +3,9 @@
   "version": "3.4.1",
   "description": "Easily manage default labels in GitHub repositories.",
   "main": "labeler.js",
+  "labeler": {
+    "defaultHost": "api.github.com"
+  },
   "bin": {
     "labeler": "labeler.js"
   },

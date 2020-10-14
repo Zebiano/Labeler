@@ -200,7 +200,7 @@ function assignFlag(flag) {
     } else if (config.has('config', flag)) {
         return config.get('config', flag)
     } else {
-        if (flag == 'host') return 'api.github.com'
+        if (flag == 'host') return pkg.labeler.defaultHost
         else return null
     }
 }
