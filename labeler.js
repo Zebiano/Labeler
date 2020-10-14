@@ -12,6 +12,7 @@ const inquirer = require('./lib/inquirer')
 const config = require('./lib/configstore')
 const axios = require('./lib/axios')
 const echo = require('./lib/echo')
+const helper = require('./lib/helper')
 
 // Require: Files
 const pkg = require('./package.json')
@@ -369,7 +370,7 @@ async function cliConfig() {
 
     // Display current config
     echo.info("Current config:")
-    console.log(config.getAll('config'))
+    console.log(helper.censorConfig(config.getAll('config')))
     console.log()
 
     // Get config input from user
