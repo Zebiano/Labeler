@@ -15,7 +15,6 @@ const helper = require('./lib/helper')
 const pkg = require('./package.json')
 
 // Variables
-let labels = config.getAll('labels')
 const helpText = `
 NAME
     labeler - Label manager for GitHub repositories.
