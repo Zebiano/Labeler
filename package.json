@@ -33,8 +33,8 @@
     "chalk-rainbow": "^1.0.0",
     "clear": "^0.1.0",
     "configstore": "^5.0.1",
-    "inquirer": "^7.0.5",
+    "inquirer": "^7.3.3",
     "meow": "^7.1.1",
-    "update-notifier": "^4.1.0"
+    "update-notifier": "^4.1.3"
   }
 }
