@@ -176,6 +176,8 @@ async function main() {
     if (cli.flags.resetLabelsFile) await helper.resetLabelsFile(cli) // Reset labels.json file
     if (cli.flags.emptyLabelsFile) await helper.emptyLabelsFile(cli) // Delete all labels from labels.json
 
+    // This will delete and/or upload all labels to every repository under the owner organization in GHE
+    // Currently only handles GHE instances, but could probably be adapted for a GitHub user
     if (cli.flags.bulkUpdate) {
         let exit = false;
         let repos = await helper.getRepositories(token, owner, host, cli)
@@ -184,10 +186,6 @@ async function main() {
             if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repos[i], cli, exit) // Delete all labels from repository
             if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repos[i], cli, exit) // Upload custom labels to repository
         }
-        // await Promise.all(repos.map(async (repo) => {
-        //     if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repo, cli, false) // Delete all labels from repository
-        //     if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repo, cli, false) // Upload custom labels to repository
-        // }))
     }
     else {
         if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repository, cli, true) // Delete all labels from repository
