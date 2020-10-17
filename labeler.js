@@ -13,6 +13,7 @@ const helper = require('./lib/helper')
 
 // Require: Files
 const pkg = require('./package.json')
+const axios = require('./lib/axios')
 
 // Variables
 const helpText = `
@@ -48,6 +49,9 @@ OPTIONS
 
     -H, --host [HOST]
         Specify host. If not specified uses values in config, else ignores config.
+
+    -b, --bulk-update
+        Update all repositories under GHE owner organization. Can only be used with a GitHub Enterprise host.
 
     -f, --force
         Ignore user confirmation.
@@ -109,6 +113,10 @@ const cli = meow(helpText, {
             alias: 't',
             type: 'string'
         },
+        'bulk-update': {
+            alias: 'b',
+            type: 'boolean'
+        },
         'delete-all-labels': {
             alias: 'd',
             type: 'boolean'
@@ -167,8 +175,25 @@ async function main() {
     if (cli.flags.path) helper.labelsPath() // Return labels.json path
     if (cli.flags.resetLabelsFile) await helper.resetLabelsFile(cli) // Reset labels.json file
     if (cli.flags.emptyLabelsFile) await helper.emptyLabelsFile(cli) // Delete all labels from labels.json
-    if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repository, cli) // Delete all labels from repository
-    if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repository, cli) // Upload custom labels to repository
+
+    if (cli.flags.bulkUpdate) {
+        let exit = false;
+        let repos = await helper.getRepositories(token, owner, host, cli)
+        for (let i=0; i<repos.length; i++) {
+            if (i === repos.length - 1) exit = true
+            if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repos[i], cli, exit) // Delete all labels from repository
+            if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repos[i], cli, exit) // Upload custom labels to repository
+        }
+        // await Promise.all(repos.map(async (repo) => {
+        //     if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repo, cli, false) // Delete all labels from repository
+        //     if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repo, cli, false) // Upload custom labels to repository
+        // }))
+    }
+    else {
+        if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repository, cli, true) // Delete all labels from repository
+        if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repository, cli, true) // Upload custom labels to repository
+    }
+
     if (cli.flags.config) await helper.cliConfig() // Run the interactive config CLI
     // Run the interactive "create new label" CLI
     if (cli.flags.newLabel) {
