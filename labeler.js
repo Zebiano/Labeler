@@ -13,7 +13,6 @@ const helper = require('./lib/helper')
 
 // Require: Files
 const pkg = require('./package.json')
-const axios = require('./lib/axios')
 
 // Variables
 const helpText = `
@@ -179,8 +178,8 @@ async function main() {
     // This will delete and/or upload all labels to every repository under the owner organization in GHE
     // Currently only handles GHE instances, but could probably be adapted for a GitHub user
     if (cli.flags.bulkUpdate) {
-        let exit = false;
-        let repos = await helper.getRepositories(token, owner, host, cli)
+        let exit = false
+        const repos = await helper.getRepositories(token, owner, host)
         for (let i=0; i<repos.length; i++) {
             if (i === repos.length - 1) exit = true
             if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repos[i], cli, exit) // Delete all labels from repository
