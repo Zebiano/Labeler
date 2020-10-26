@@ -169,9 +169,10 @@ async function main() {
 
     // Check if flags were called correctly
     helper.checkFlags(cli)
-
-    // Check for -d or -u
-    if (cli.flags.deleteAllLabels || cli.flags.uploadLabels) helper.echoOwnerRepository(owner, repository)
+    
+    // Check for flags
+    if (cli.flags.bulkUpdate) helper.echoOwnerRepository(owner, 'Various')
+    else if (cli.flags.deleteAllLabels || cli.flags.uploadLabels) helper.echoOwnerRepository(owner, repository)
 
     // Run functions according to flags
     if (cli.flags.path) helper.labelsPath() // Return labels.json path
