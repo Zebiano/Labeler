@@ -100,8 +100,8 @@ EXAMPLES
     Using GitHub Enterprise hosts:
         labeler -dur Labeler -H github.yourhost.com
 
-    Update all labels from a GHE organization:
-        labeler -b -H github.yourhost.com
+    Delete and upload all labels from a GHE organization:
+        labeler -dub -H github.yourhost.com
 ```
 
 I've tried my best to create a tool for everyone! If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`. If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag).

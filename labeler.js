@@ -83,8 +83,8 @@ EXAMPLES
     Using GitHub Enterprise hosts:
         labeler -dur Labeler -H github.yourhost.com
     
-    Update all labels from a GHE organization:
-        labeler -b -H github.yourhost.com
+    Delete and upload all labels from a GHE organization:
+        labeler -dub -H github.yourhost.com
 `;
 
 // Meow CLI
