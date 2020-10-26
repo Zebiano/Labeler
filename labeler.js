@@ -182,7 +182,7 @@ async function main() {
     // Currently only handles GHE instances, but could probably be adapted for a GitHub user
     if (cli.flags.bulkUpdate) {
         const repos = await helper.getRepositories(token, owner, host)
-        for (repo of repos) {
+        for (const repo of repos) {
             if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repo, cli, false) // Delete all labels from repository
             if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repo, cli, false) // Upload custom labels to repository
         }
