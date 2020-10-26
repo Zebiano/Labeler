@@ -178,13 +178,12 @@ async function main() {
     // This will delete and/or upload all labels to every repository under the owner organization in GHE
     // Currently only handles GHE instances, but could probably be adapted for a GitHub user
     if (cli.flags.bulkUpdate) {
-        let exit = false
         const repos = await helper.getRepositories(token, owner, host)
         for (let i=0; i<repos.length; i++) {
-            if (i === repos.length - 1) exit = true
-            if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repos[i], cli, exit) // Delete all labels from repository
-            if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repos[i], cli, exit) // Upload custom labels to repository
+            if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repos[i], cli, false) // Delete all labels from repository
+            if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repos[i], cli, false) // Upload custom labels to repository
         }
+        echo.success('Finished!', true)
     }
     else {
         if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repository, cli, true) // Delete all labels from repository
