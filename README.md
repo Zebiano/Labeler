@@ -66,6 +66,9 @@ OPTIONS
     -H, --host [HOST]
         Specify host. If not specified uses values in config, else ignores config.
 
+    -b, --bulk-update
+        Update all repositories under GHE owner organization. Can only be used with a GitHub Enterprise host.
+
     -f, --force
         Ignore user confirmation.
 
@@ -96,6 +99,9 @@ EXAMPLES
 
     Using GitHub Enterprise hosts:
         labeler -dur Labeler -H github.yourhost.com
+
+    Delete and upload all labels from a GHE organization:
+        labeler -dub -H github.yourhost.com
 ```
 
 I've tried my best to create a tool for everyone! If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`. If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag).

@@ -49,6 +49,9 @@ OPTIONS
     -H, --host [HOST]
         Specify host. If not specified uses values in config, else ignores config.
 
+    -b, --bulk-update
+        Update all repositories under GHE owner organization. Can only be used with a GitHub Enterprise host.
+
     -f, --force
         Ignore user confirmation.
 
@@ -79,6 +82,9 @@ EXAMPLES
 
     Using GitHub Enterprise hosts:
         labeler -dur Labeler -H github.yourhost.com
+    
+    Delete and upload all labels from a GHE organization:
+        labeler -dub -H github.yourhost.com
 `;
 
 // Meow CLI
@@ -108,6 +114,10 @@ const cli = meow(helpText, {
         'token': {
             alias: 't',
             type: 'string'
+        },
+        'bulk-update': {
+            alias: 'b',
+            type: 'boolean'
         },
         'delete-all-labels': {
             alias: 'd',
@@ -159,16 +169,31 @@ async function main() {
 
     // Check if flags were called correctly
     helper.checkFlags(cli)
-
-    // Check for -d or -u
-    if (cli.flags.deleteAllLabels || cli.flags.uploadLabels) helper.echoOwnerRepository(owner, repository)
+    
+    // Check for flags
+    if (cli.flags.bulkUpdate) helper.echoOwnerRepository(owner, 'Various')
+    else if (cli.flags.deleteAllLabels || cli.flags.uploadLabels) helper.echoOwnerRepository(owner, repository)
 
     // Run functions according to flags
     if (cli.flags.path) helper.labelsPath() // Return labels.json path
     if (cli.flags.resetLabelsFile) await helper.resetLabelsFile(cli) // Reset labels.json file
     if (cli.flags.emptyLabelsFile) await helper.emptyLabelsFile(cli) // Delete all labels from labels.json
-    if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repository, cli) // Delete all labels from repository
-    if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repository, cli) // Upload custom labels to repository
+
+    // This will delete and/or upload all labels to every repository under the owner organization in GHE
+    // Currently only handles GHE instances, but could probably be adapted for a GitHub user
+    if (cli.flags.bulkUpdate) {
+        const repos = await helper.getRepositories(token, owner, host)
+        for (const repo of repos) {
+            if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repo, cli, false) // Delete all labels from repository
+            if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repo, cli, false) // Upload custom labels to repository
+        }
+        echo.success('Finished!', true)
+    }
+    else {
+        if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repository, cli, true) // Delete all labels from repository
+        if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repository, cli, true) // Upload custom labels to repository
+    }
+
     if (cli.flags.config) await helper.cliConfig() // Run the interactive config CLI
     // Run the interactive "create new label" CLI
     if (cli.flags.newLabel) {
