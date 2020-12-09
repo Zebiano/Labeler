@@ -1,8 +1,8 @@
 [
     {
-        "name": "(ノಠ益ಠ)ノ彡┻━┻",
-        "color": "FC271E",
-        "description": "For that one time. You'll know when that is."
+        "name": "Duplicate :heavy_multiplication_x:",
+        "color": "D2DAE1",
+        "description": "It's a dupe, duh."
     },
     {
         "name": "File: name_of_file.ext :file_folder:",
@@ -10,24 +10,24 @@
         "description": "Everything name_of_file.ext related."
     },
     {
-        "name": "Duplicate :heavy_multiplication_x:",
-        "color": "D2DAE1",
-        "description": "It's a dupe, duh."
-    },
-    {
-        "name": "Inactive :zzz:",
-        "color": "D2DAE1",
-        "description": "Dodged a bullet. For how long though?"
-    },
-    {
         "name": "Good first issue :ok_hand:",
-        "color": "4F86C6",
+        "color": "1D76DB",
         "description": "If you're new here, check this out!"
     },
     {
         "name": "Help wanted :raised_hands:",
         "color": "A1EF8B",
         "description": "I'm desperate, please help a poor soul."
+    },
+    {
+        "name": "Inactive :zzz:",
+        "color": "E99695",
+        "description": "Dodged a bullet. For how long though?"
+    },
+    {
+        "name": "Priority: High :fire:",
+        "color": "FC271E",
+        "description": "Oh no..."
     },
     {
         "name": "Priority: Low :snowflake:",
@@ -40,9 +40,9 @@
         "description": "You should probably go take a look. Maybe this week still?"
     },
     {
-        "name": "Priority: High :fire:",
-        "color": "FC271E",
-        "description": "Oh no..."
+        "name": "Status: Awaiting user input :speech_balloon:",
+        "color": "D2DAE1",
+        "description": "How does it feel to temporarily give responsibility to someone else?"
     },
     {
         "name": "Status: Done :heavy_check_mark:",
@@ -51,13 +51,8 @@
     },
     {
         "name": "Status: In progress :clock1030:",
-        "color": "ff8000",
+        "color": "FF8000",
         "description": "Tell them you're working on it... They'll believe you!"
-    },
-    {
-        "name": "Status: Awaiting user input :speech_balloon:",
-        "color": "D2DAE1",
-        "description": "How does it feel to temporarily give responsibility to someone else?"
     },
     {
         "name": "Status: Review needed :eyes:",
@@ -68,6 +63,11 @@
         "name": "Type: Bug :beetle:",
         "color": "FC271E",
         "description": "It's a bug. Easy. Fix it."
+    },
+    {
+        "name": "Type: Discussion :page_facing_up:",
+        "color": "1D76DB",
+        "description": "People talking about the project. You love to see it!"
     },
     {
         "name": "Type: Enhancement :arrow_double_up:",
@@ -86,7 +86,12 @@
     },
     {
         "name": "Type: TODO :memo:",
-        "color": "ff8000",
+        "color": "FF8000",
         "description": "Let me guess: there are a lot?"
+    },
+    {
+        "name": "(ノಠ益ಠ)ノ彡┻━┻",
+        "color": "FC271E",
+        "description": "For that one time. You'll know when that is."
     }
 ]
