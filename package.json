@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/zebiano/Labeler#readme",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chalk": "^3.0.0",
     "chalk-pipe": "^3.0.0",
     "chalk-rainbow": "^1.0.0",
