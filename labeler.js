@@ -34,7 +34,7 @@ OPTIONS
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
-    -n, --new-label
+    -n, --newLabel
         Launch interactive CLI to store new labels in the labels.json file.
 
     -r, --repository [REPOSITORY]
@@ -49,22 +49,22 @@ OPTIONS
     -H, --host [HOST]
         Specify host. If not specified uses values in config, else ignores config.
 
-    -b, --bulk-update
+    -b, --bulkUpdate
         Update all repositories under GHE owner organization. Can only be used with a GitHub Enterprise host.
 
     -f, --force
         Ignore user confirmation.
 
-    -d, --delete-all-labels
+    -d, --deleteAllLabels
         Delete all existing labels in repository.
 
-    -u, --upload-labels
+    -u, --uploadLabels
         Upload custom labels to repository. Skips already existing labels.
 
-    -e, --empty-labels-file
+    -e, --emptyLabelsFile
         Remove every label from the labels.json file.
 
-    -R, --reset-labels-file
+    -R, --resetLabelsFile
         Reset labels.json by overwriting labels.json with the default labels.
 
     -p, --path
@@ -115,19 +115,19 @@ const cli = meow(helpText, {
             alias: 't',
             type: 'string'
         },
-        'bulk-update': {
+        'bulkUpdate': {
             alias: 'b',
             type: 'boolean'
         },
-        'delete-all-labels': {
+        'deleteAllLabels': {
             alias: 'd',
             type: 'boolean'
         },
-        'new-label': {
+        'newLabel': {
             alias: 'n',
             type: 'boolean'
         },
-        'upload-labels': {
+        'uploadLabels': {
             alias: 'u',
             type: 'boolean'
         },
@@ -135,11 +135,11 @@ const cli = meow(helpText, {
             alias: 'f',
             type: 'boolean'
         },
-        'empty-labels-file': {
+        'emptyLabelsFile': {
             alias: 'e',
             type: 'boolean'
         },
-        'reset-labels-file': {
+        'resetLabelsFile': {
             alias: 'R',
             type: 'boolean'
         },

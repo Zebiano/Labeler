@@ -51,7 +51,7 @@ OPTIONS
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
-    -n, --new-label
+    -n, --newLabel
         Launch interactive CLI to store new labels in the labels.json file.
 
     -r, --repository [REPOSITORY]
@@ -66,22 +66,22 @@ OPTIONS
     -H, --host [HOST]
         Specify host. If not specified uses values in config, else ignores config.
 
-    -b, --bulk-update
+    -b, --bulkUpdate
         Update all repositories under GHE owner organization. Can only be used with a GitHub Enterprise host.
 
     -f, --force
         Ignore user confirmation.
 
-    -d, --delete-all-labels
+    -d, --deleteAllLabels
         Delete all existing labels in repository.
 
-    -u, --upload-labels
+    -u, --uploadLabels
         Upload custom labels to repository. Skips already existing labels.
 
-    -e, --empty-labels-file
+    -e, --emptyLabelsFile
         Remove every label from the labels.json file.
 
-    -R, --reset-labels-file
+    -R, --resetLabelsFile
         Reset labels.json by overwriting labels.json with the default labels.
 
     -p, --path
@@ -112,7 +112,7 @@ I've tried my best to create a tool for everyone! If you prefer using flags, fee
 #### `labeler -c`
 Interactive CLI for the config. Most likely the first command to run. I recommend setting the `token` and the `owner`, as they rarely change usually. If you want to remove an entry, simply enter nothing when asked.
 
-- **token**: Personal GitHub Access Token. Create one called "Labeler" [here](https://github.com/settings/tokens) with the following permissions: `admin:org, repo`
+- **token**: Personal GitHub Access Token. Create one called "Labeler" [here](https://github.com/settings/tokens) with the following permissions: `repo` and `admin:org`.
 - **owner**: Also known as the username. In [my case](https://github.com/Zebiano) it's `Zebiano` for example.
 - **repository**: Name of the repository. As an example, this repo would be `labeler`. It is **not recommended** to set this setting as it may cause non-intentional deletions of labels.
 - **host**: Custom host, useful for GitHub Enterprise Instances. For example `github.yourhost.com`.
