@@ -211,7 +211,6 @@ async function main() {
         echo.info('Create new labels:')
         await helper.cliNewLabel(cli)
     }
-    if (cli.input[0] == "secret") echo.rainbow() // :)
 
     // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
     if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
