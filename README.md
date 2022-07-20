@@ -1,15 +1,21 @@
+<!-- TODO: Spaces 2 -->
+<!-- TODO: Change all functions to arrow functions -->
+<!-- TODO: Change 'labels.json' terminal output to have '' -->
+<!-- TODO: Clean README.md -->
+<!-- TODO: Add error to axios -->
+<!-- TODO: Make code cleaner -->
 <div align="center">
-	<!-- <img src="Stuff/AppIcon-readme.png" width="200" height="200"> -->
+ <!-- <img src="Stuff/AppIcon-readme.png" width="200" height="200"> -->
     <pre>
    __       _          _           
   / /  __ _| |__   ___| | ___ _ __ 
  / /  / _` | '_ \ / _ \ |/ _ \ '__|
-/ /__| (_| | |_) |  __/ |  __/ |   
-\____/\__,_|_.__/ \___|_|\___|_|   
+/ /__| (_| | |_) |  __/ |  __/ |
+\____/\__,_|_.__/ \___|_|\___|_|
     </pre>
-	<p>
-		<b>Easily manage default labels in GitHub repositories</b>
-	</p>
+ <p>
+  <b>Easily manage default labels in GitHub repositories</b>
+ </p>
 
   <!-- Badges -->
   <!-- <a href="#usage" alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Passing-green.svg"></img></a> -->
@@ -128,7 +134,7 @@ An interactive CLI to help you add new Labels to the `labels.json` file. You'll 
 - **color**: Hex color of label.
   - *Example:* `FC271E`
 
-Alternatively, run `labeler -en`. This way, every label inside the `labels.json` file will be removed first. 
+Alternatively, run `labeler -en`. This way, every label inside the `labels.json` file will be removed first.
 
 *Note:* Running `labeler -fn` will bypass the question, which defaults to "keep file as is".
 

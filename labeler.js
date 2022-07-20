@@ -1,18 +1,19 @@
 #!/usr/bin/env node
-'use strict'
+// Import: Packages
+import Meow from 'meow'
+import UpdateNotifier from 'update-notifier'
+import { readFile } from 'fs/promises'
+import Path from 'path'
+import { fileURLToPath } from 'url'
 
-// Require: Packages
-const meow = require('meow')
-const updateNotifier = require('update-notifier')
+// Import: Libs
+import * as inquirer from './lib/inquirer.js'
+import * as config from './lib/configstore.js'
+import * as echo from './lib/echo.js'
+import * as helper from './lib/helper.js'
 
-// Require: Libs
-const inquirer = require('./lib/inquirer')
-const config = require('./lib/configstore')
-const echo = require('./lib/echo')
-const helper = require('./lib/helper')
-
-// Require: Files
-const pkg = require('./package.json')
+// Import: Files
+const pkg = JSON.parse(await readFile(`${Path.dirname(fileURLToPath(import.meta.url))}/package.json`));
 
 // Variables
 const helpText = `
@@ -88,7 +89,8 @@ EXAMPLES
 `;
 
 // Meow CLI
-const cli = meow(helpText, {
+const cli = Meow(helpText, {
+    importMeta: import.meta,
     description: false,
     flags: {
         'help': {
@@ -154,7 +156,7 @@ const cli = meow(helpText, {
 console.log()
 
 // Update Notifier
-updateNotifier({ pkg }).notify({ isGlobal: true })
+UpdateNotifier({ pkg }).notify({ isGlobal: true })
 
 // Variables
 const token = helper.assignFlag(cli, 'token')
@@ -169,7 +171,7 @@ async function main() {
 
     // Check if flags were called correctly
     helper.checkFlags(cli)
-    
+
     // Check for flags
     if (cli.flags.bulkUpdate) helper.echoOwnerRepository(owner, 'Various')
     else if (cli.flags.deleteAllLabels || cli.flags.uploadLabels) helper.echoOwnerRepository(owner, repository)
@@ -180,7 +182,7 @@ async function main() {
     if (cli.flags.emptyLabelsFile) await helper.emptyLabelsFile(cli) // Delete all labels from labels.json
 
     // This will delete and/or upload all labels to every repository under the owner organization in GHE
-    // Currently only handles GHE instances, but could probably be adapted for a GitHub user
+    // TODO: Currently only handles GHE instances, but could probably be adapted for a GitHub user
     if (cli.flags.bulkUpdate) {
         const repos = await helper.getRepositories(token, owner, host)
         for (const repo of repos) {
@@ -218,7 +220,7 @@ async function main() {
     // If nothing happens, I'm assuming the user ran without flags
     echo.error('Missing arguments.')
     echo.tip('Use -h for help.')
-    echo.info('Running version ' + pkg.version + '.', true)
+    echo.info(`Version ${pkg.version}`, true)
 }
 
 // Call main()
