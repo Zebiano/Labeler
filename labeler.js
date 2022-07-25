@@ -90,66 +90,66 @@ EXAMPLES
 
 // Meow CLI
 const cli = Meow(helpText, {
-    importMeta: import.meta,
-    description: false,
-    flags: {
-        'help': {
-            alias: 'h',
-            type: 'boolean'
-        },
-        'config': {
-            alias: 'c',
-            type: 'boolean'
-        },
-        'repository': {
-            alias: 'r',
-            type: 'string'
-        },
-        'owner': {
-            alias: 'o',
-            type: 'string'
-        },
-        'host': {
-            alias: 'H',
-            type: 'string'
-        },
-        'token': {
-            alias: 't',
-            type: 'string'
-        },
-        'bulkUpdate': {
-            alias: 'b',
-            type: 'boolean'
-        },
-        'deleteAllLabels': {
-            alias: 'd',
-            type: 'boolean'
-        },
-        'newLabel': {
-            alias: 'n',
-            type: 'boolean'
-        },
-        'uploadLabels': {
-            alias: 'u',
-            type: 'boolean'
-        },
-        'force': {
-            alias: 'f',
-            type: 'boolean'
-        },
-        'emptyLabelsFile': {
-            alias: 'e',
-            type: 'boolean'
-        },
-        'resetLabelsFile': {
-            alias: 'R',
-            type: 'boolean'
-        },
-        'path': {
-            alias: 'p',
-            type: 'boolean'
-        }
+  importMeta: import.meta,
+  description: false,
+  flags: {
+    'help': {
+      alias: 'h',
+      type: 'boolean'
+    },
+    'config': {
+      alias: 'c',
+      type: 'boolean'
+    },
+    'repository': {
+      alias: 'r',
+      type: 'string'
+    },
+    'owner': {
+      alias: 'o',
+      type: 'string'
+    },
+    'host': {
+      alias: 'H',
+      type: 'string'
+    },
+    'token': {
+      alias: 't',
+      type: 'string'
+    },
+    'bulkUpdate': {
+      alias: 'b',
+      type: 'boolean'
+    },
+    'deleteAllLabels': {
+      alias: 'd',
+      type: 'boolean'
+    },
+    'newLabel': {
+      alias: 'n',
+      type: 'boolean'
+    },
+    'uploadLabels': {
+      alias: 'u',
+      type: 'boolean'
+    },
+    'force': {
+      alias: 'f',
+      type: 'boolean'
+    },
+    'emptyLabelsFile': {
+      alias: 'e',
+      type: 'boolean'
+    },
+    'resetLabelsFile': {
+      alias: 'R',
+      type: 'boolean'
+    },
+    'path': {
+      alias: 'p',
+      type: 'boolean'
     }
+  }
 })
 
 /* --- Start --- */
@@ -166,60 +166,60 @@ const host = helper.assignFlag(cli, 'host')
 
 // Main function
 async function main() {
-    // Warn user if -f
-    if (cli.flags.force) echo.warning('Detected -f, ignoring user confirmation.\n')
+  // Warn user if -f
+  if (cli.flags.force) echo.warning('Detected -f, ignoring user confirmation.\n')
 
-    // Check if flags were called correctly
-    helper.checkFlags(cli)
+  // Check if flags were called correctly
+  helper.checkFlags(cli)
 
-    // Check for flags
-    if (cli.flags.bulkUpdate) helper.echoOwnerRepository(owner, 'Various')
-    else if (cli.flags.deleteAllLabels || cli.flags.uploadLabels) helper.echoOwnerRepository(owner, repository)
+  // Check for flags
+  if (cli.flags.bulkUpdate) helper.echoOwnerRepository(owner, 'Various')
+  else if (cli.flags.deleteAllLabels || cli.flags.uploadLabels) helper.echoOwnerRepository(owner, repository)
 
-    // Run functions according to flags
-    if (cli.flags.path) helper.labelsPath() // Return labels.json path
-    if (cli.flags.resetLabelsFile) await helper.resetLabelsFile(cli) // Reset labels.json file
-    if (cli.flags.emptyLabelsFile) await helper.emptyLabelsFile(cli) // Delete all labels from labels.json
+  // Run functions according to flags
+  if (cli.flags.path) helper.labelsPath() // Return labels.json path
+  if (cli.flags.resetLabelsFile) await helper.resetLabelsFile(cli) // Reset labels.json file
+  if (cli.flags.emptyLabelsFile) await helper.emptyLabelsFile(cli) // Delete all labels from labels.json
 
-    // This will delete and/or upload all labels to every repository under the owner organization in GHE
-    // ICEBOX: Currently only handles GHE instances, but could probably be adapted for a GitHub user
-    if (cli.flags.bulkUpdate) {
-        const repos = await helper.getRepositories(token, owner, host)
-        for (const repo of repos) {
-            if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repo, cli, false) // Delete all labels from repository
-            if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repo, cli, false) // Upload custom labels to repository
-        }
-        echo.success('Finished!', true)
-    } else {
-        if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repository, cli, true) // Delete all labels from repository
-        if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repository, cli, true) // Upload custom labels to repository
+  // This will delete and/or upload all labels to every repository under the owner organization in GHE
+  // ICEBOX: Currently only handles GHE instances, but could probably be adapted for a GitHub user
+  if (cli.flags.bulkUpdate) {
+    const repos = await helper.getRepositories(token, owner, host)
+    for (const repo of repos) {
+      if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repo, cli, false) // Delete all labels from repository
+      if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repo, cli, false) // Upload custom labels to repository
+    }
+    echo.success('Finished!', true)
+  } else {
+    if (cli.flags.deleteAllLabels) await helper.deleteAllLabels(token, owner, host, repository, cli, true) // Delete all labels from repository
+    if (cli.flags.uploadLabels) await helper.uploadLabels(token, owner, host, repository, cli, true) // Upload custom labels to repository
+  }
+
+  if (cli.flags.config) await helper.cliConfig() // Run the interactive config CLI
+  // Run the interactive "create new label" CLI
+  if (cli.flags.newLabel) {
+    echo.tip('If you want to edit the file, here\'s the path:')
+    echo.info(config.path('labels'))
+    console.log()
+
+    // Ask if the user wants a fresh file or not
+    if (!cli.flags.force && !cli.flags.emptyLabelsFile) {
+      const answerFresh = await inquirer.choiceFreshNewLabels()
+      if (answerFresh) config.set('labels', { 'labels': [] })
+      console.log()
     }
 
-    if (cli.flags.config) await helper.cliConfig() // Run the interactive config CLI
-    // Run the interactive "create new label" CLI
-    if (cli.flags.newLabel) {
-        echo.tip('If you want to edit the file, here\'s the path:')
-        echo.info(config.path('labels'))
-        console.log()
+    echo.info('Create new labels:')
+    await helper.cliNewLabel(cli)
+  }
 
-        // Ask if the user wants a fresh file or not
-        if (!cli.flags.force && !cli.flags.emptyLabelsFile) {
-            const answerFresh = await inquirer.choiceFreshNewLabels()
-            if (answerFresh) config.set('labels', { 'labels': [] })
-            console.log()
-        }
+  // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
+  if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
 
-        echo.info('Create new labels:')
-        await helper.cliNewLabel(cli)
-    }
-
-    // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
-    if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
-
-    // If nothing happens, I'm assuming the user ran without flags
-    echo.error('Missing arguments.')
-    echo.tip('Use -h for help.')
-    echo.info(`Version ${pkg.version}`, true)
+  // If nothing happens, I'm assuming the user ran without flags
+  echo.error('Missing arguments.')
+  echo.tip('Use -h for help.')
+  echo.info(`Version ${pkg.version}`, true)
 }
 
 // Call main()
