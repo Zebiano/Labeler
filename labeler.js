@@ -25,7 +25,7 @@ SYNOPSIS
 
 DESCRIPTION
     Create custom labels on GitHub repositories automatically.
-    This CLI helps you organize your GitHub labels by storing them in a labels.json file. You can add new labels through the CLI with the -n flag.
+    This CLI helps you organize your GitHub labels by storing them in a 'labels.json' file. You can add new labels through the CLI with the -n flag.
     Whenever you create a new repository, instead of manually uploading your labels, use this CLI to have it done automatically!
 
 OPTIONS
@@ -36,7 +36,7 @@ OPTIONS
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
     -n, --newLabel
-        Launch interactive CLI to store new labels in the labels.json file.
+        Launch interactive CLI to store new labels in the 'labels.json' file.
 
     -r, --repository [REPOSITORY]
         Specify GitHub repository name. If not specified uses values in config, else ignores config.
@@ -63,22 +63,22 @@ OPTIONS
         Upload custom labels to repository. Skips already existing labels.
 
     -e, --emptyLabelsFile
-        Remove every label from the labels.json file.
+        Remove every label from the 'labels.json' file.
 
     -R, --resetLabelsFile
-        Reset labels.json by overwriting labels.json with the default labels.
+        Reset 'labels.json' by overwriting 'labels.json' with the default labels.
 
     -p, --path
-        Return the path for labels.json file.
+        Return the path for 'labels.json' file.
 
 EXAMPLES
-    Delete all labels from the repository and upload custom ones stored under labels.json to the repository:
+    Delete all labels from the repository and upload custom ones stored under 'labels.json' to the repository:
         labeler -dur Labeler
 
     Same as above but without the confirmation questions:
         labeler -fdur Labeler
 
-    Delete every label from labels.json and add new labels to it:
+    Delete every label from 'labels.json' and add new labels to it:
         labeler -en
 
     Using GitHub Enterprise hosts:
@@ -182,7 +182,7 @@ async function main() {
     if (cli.flags.emptyLabelsFile) await helper.emptyLabelsFile(cli) // Delete all labels from labels.json
 
     // This will delete and/or upload all labels to every repository under the owner organization in GHE
-    // TODO: Currently only handles GHE instances, but could probably be adapted for a GitHub user
+    // ICEBOX: Currently only handles GHE instances, but could probably be adapted for a GitHub user
     if (cli.flags.bulkUpdate) {
         const repos = await helper.getRepositories(token, owner, host)
         for (const repo of repos) {

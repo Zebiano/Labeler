@@ -1,8 +1,5 @@
 <!-- TODO: Spaces 2 -->
 <!-- TODO: Change all functions to arrow functions -->
-<!-- TODO: Change 'labels.json' terminal output to have '' -->
-<!-- TODO: Clean README.md -->
-<!-- TODO: Add error to axios -->
 <!-- TODO: Make code cleaner -->
 <div align="center">
  <!-- <img src="Stuff/AppIcon-readme.png" width="200" height="200"> -->
@@ -23,22 +20,23 @@
   <!-- <a alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Failing-red.svg"></img></a> -->
 </div>
 
-<!-- Uncomment the following quote whenever the CLI is Failing -->
-<!-- > Why is it failing? -->
-
 ## Why?
+
 Because I was sick of always deleting the default labels and uploading my own ones.
 
 ## How?
+
 By storing custom labels in a `labels.json` file, deleting the default ones from the repository and uploading those from said file.
 
 ## Installation
-```
+
+```sh
 npm install --global labeler
 ```
 
 ## Usage
-```
+
+```text
 NAME
     labeler - Label manager for GitHub repositories.
 
@@ -47,7 +45,7 @@ SYNOPSIS
 
 DESCRIPTION
     Create custom labels on GitHub repositories automatically.
-    This CLI helps you organize your GitHub labels by storing them in a labels.json file. You can add new labels through the CLI with the -n flag.
+    This CLI helps you organize your GitHub labels by storing them in a 'labels.json' file. You can add new labels through the CLI with the -n flag.
     Whenever you create a new repository, instead of manually uploading your labels, use this CLI to have it done automatically!
 
 OPTIONS
@@ -58,7 +56,7 @@ OPTIONS
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
     -n, --newLabel
-        Launch interactive CLI to store new labels in the labels.json file.
+        Launch interactive CLI to store new labels in the 'labels.json' file.
 
     -r, --repository [REPOSITORY]
         Specify GitHub repository name. If not specified uses values in config, else ignores config.
@@ -85,37 +83,38 @@ OPTIONS
         Upload custom labels to repository. Skips already existing labels.
 
     -e, --emptyLabelsFile
-        Remove every label from the labels.json file.
+        Remove every label from the 'labels.json' file.
 
     -R, --resetLabelsFile
-        Reset labels.json by overwriting labels.json with the default labels.
+        Reset 'labels.json' by overwriting 'labels.json' with the default labels.
 
     -p, --path
-        Return the path for labels.json file.
+        Return the path for 'labels.json' file.
 
 EXAMPLES
-    Delete all labels from the repository and upload custom ones stored under labels.json to the repository:
+    Delete all labels from the repository and upload custom ones stored under 'labels.json' to the repository:
         labeler -dur Labeler
 
     Same as above but without the confirmation questions:
         labeler -fdur Labeler
 
-    Delete every label from labels.json and add new labels to it:
+    Delete every label from 'labels.json' and add new labels to it:
         labeler -en
 
     Using GitHub Enterprise hosts:
         labeler -dur Labeler -H github.yourhost.com
-
+    
     Delete and upload all labels from a GHE organization:
         labeler -dub -H github.yourhost.com
 ```
 
-I've tried my best to create a tool for everyone! If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`. If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless specified by a flag).
+I've tried my best to create a tool for everyone! If you prefer using flags, feel free to run `labeler -t [TOKEN] -o [OWNER] -r [REPOSITORY] -du`. If you fancy writing less, run `labeler -c` and save your values. Those will be your default ones (unless overridden by a flag).
 
 `labeler` comes with some predefined labels, but you can of course use your own. By running  `labeler -en`, you'll start a fresh new file. The `path` to the file will be in the terminal, in case you prefer to open and edit it with your editor of choice.
 
 ## Commands
-#### `labeler -c`
+### `labeler -c`
+
 Interactive CLI for the config. Most likely the first command to run. I recommend setting the `token` and the `owner`, as they rarely change usually. If you want to remove an entry, simply enter nothing when asked.
 
 - **token**: Personal GitHub Access Token. Create one called "Labeler" [here](https://github.com/settings/tokens) with the following permissions: `repo` and `admin:org`.
@@ -125,7 +124,8 @@ Interactive CLI for the config. Most likely the first command to run. I recommen
 
 In case you need to access a repository from another owner, simply run the `-o [OWNER]` flag and the one stored in the config will be ignored.
 
-#### `labeler -n`
+### `labeler -n`
+
 An interactive CLI to help you add new Labels to the `labels.json` file. You'll be asked wether you want to start a new file, or add labels to the already existing one. It also shows the `path`.
 - **name**: Name of label.
   - *Example:* `Bug :beetle:`
@@ -138,7 +138,8 @@ Alternatively, run `labeler -en`. This way, every label inside the `labels.json`
 
 *Note:* Running `labeler -fn` will bypass the question, which defaults to "keep file as is".
 
-#### `labeler -fdur [REPOSITORY]`
+### `labeler -fdur [REPOSITORY]`
+
 A very specific example, yet the one I think will be the most used. It's assumed that `token` and `owner` are set in the [config](#labeler--c)!
 - `-f`: Ignore user confirmation
 - `-d`: Delete all labels from repository
@@ -147,14 +148,17 @@ A very specific example, yet the one I think will be the most used. It's assumed
 
 Example: `labeler -fdur Labeler`
 
-#### `labeler -H [HOST]`
+### `labeler -H [HOST]`
+
 In case you're using a custom host (for example a GitHub Enterprise host), use this flag to specify it. You may as well save the host in the [config](#labeler--c).
 
 Example: `labeler -fdur Labeler -H github.yourhost.com`
 
 ## `labels.json`
+
 This is the file where all your custom labels are stored. Feel free to edit it. Run `labeler -p` to get the path. Just keep in mind it has to have the following structure:
-```
+
+```json
 {
     "labels": [
         {
