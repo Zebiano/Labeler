@@ -46,47 +46,47 @@ DESCRIPTION
     Whenever you create a new repository, instead of manually uploading your labels, use this CLI to have it done automatically!
 
 OPTIONS
-    -h, --help
-        Display this help page.
+    -b, --bulkUpdate
+        Update all repositories under GHE owner organization. Can only be used with a GitHub Enterprise host.
 
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
 
+    -d, --deleteAllLabels
+        Delete all existing labels in repository.
+
+    -e, --emptyLabelsFile
+        Remove every label from the 'labels.json' file.
+    
+    -f, --force
+        Ignore user confirmation.
+
+    -h, --help
+        Display this help page.
+    
+    -H, --host [HOST]
+        Specify host. If not specified uses values in config, else ignores config.
+
     -n, --newLabel
         Launch interactive CLI to store new labels in the 'labels.json' file.
-
-    -r, --repository [REPOSITORY]
-        Specify GitHub repository name. If not specified uses values in config, else ignores config.
 
     -o, --owner [OWNER]
         Specify owner of repository. If not specified uses values in config, else ignores config.
 
-    -t, --token [TOKEN]
-        Specify personal access token. If not specified uses values in config, else ignores config.
+    -p, --path
+        Return the path for 'labels.json' file.
 
-    -H, --host [HOST]
-        Specify host. If not specified uses values in config, else ignores config.
-
-    -b, --bulkUpdate
-        Update all repositories under GHE owner organization. Can only be used with a GitHub Enterprise host.
-
-    -f, --force
-        Ignore user confirmation.
-
-    -d, --deleteAllLabels
-        Delete all existing labels in repository.
-
-    -u, --uploadLabels
-        Upload custom labels to repository. Skips already existing labels.
-
-    -e, --emptyLabelsFile
-        Remove every label from the 'labels.json' file.
+    -r, --repository [REPOSITORY]
+        Specify GitHub repository name. If not specified uses values in config, else ignores config.
 
     -R, --resetLabelsFile
         Reset 'labels.json' by overwriting 'labels.json' with the default labels.
 
-    -p, --path
-        Return the path for 'labels.json' file.
+    -t, --token [TOKEN]
+        Specify personal access token. If not specified uses values in config, else ignores config.
+
+    -u, --uploadLabels
+        Upload custom labels to repository. Skips already existing labels.
 
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under 'labels.json' to the repository:
