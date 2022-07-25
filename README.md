@@ -1,6 +1,4 @@
 <!-- TODO: Spaces 2 -->
-<!-- TODO: Change all functions to arrow functions -->
-<!-- TODO: Make code cleaner -->
 <div align="center">
  <!-- <img src="Stuff/AppIcon-readme.png" width="200" height="200"> -->
     <pre>
