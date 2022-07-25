@@ -1,12 +1,11 @@
-<!-- TODO: Spaces 2 -->
 <div align="center">
  <!-- <img src="Stuff/AppIcon-readme.png" width="200" height="200"> -->
     <pre>
    __       _          _           
   / /  __ _| |__   ___| | ___ _ __ 
  / /  / _` | '_ \ / _ \ |/ _ \ '__|
-/ /__| (_| | |_) |  __/ |  __/ |
-\____/\__,_|_.__/ \___|_|\___|_|
+/ /__| (_| | |_) |  __/ |  __/ |   
+\____/\__,_|_.__/ \___|_|\___|_|   
     </pre>
  <p>
   <b>Easily manage default labels in GitHub repositories</b>
