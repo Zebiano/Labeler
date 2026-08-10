@@ -30,7 +30,7 @@ DESCRIPTION
 
 OPTIONS
     -b, --bulkUpdate
-        Update all repositories under GHE owner organization. Can only be used with a GitHub Enterprise host.
+        Update all repositories under the specified owner. Works for both GitHub users and GitHub Enterprise organizations.
 
     -c, --config
         Launch interactive CLI to store data into config. Storing empty strings removes data from config.
