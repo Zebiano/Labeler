@@ -107,15 +107,35 @@ export function checkRequiredFlags(token: string | null, owner: string | null, r
 
 // Check flags
 export function checkFlags(cli: Cli): void {
+  // Bulk update only exists for GitHub Enterprise. The resolved host is what matters, not
+  // the flag, because a host can equally come from the config
+  if (cli.flags.bulkUpdate && assignFlag(cli, 'host') == github.defaultHost) {
+    echo.error('Bulk update requires a GitHub Enterprise host.')
+    echo.tip('Specify one with -H, or store one with -c.', true)
+  }
+
   // Check for usage of flags that shouldn't be used together
   if (((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.host || cli.flags.bulkUpdate || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config))
-    || (cli.flags.bulkUpdate && cli.flags.host == github.defaultHost)
     || (cli.flags.config && cli.flags.newLabel)
     || (cli.flags.emptyLabelsFile && (cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.host || cli.flags.bulkUpdate || cli.flags.uploadLabels || cli.flags.deleteAllLabels || cli.flags.config || cli.flags.resetLabelsFile))
     || (cli.flags.bulkUpdate && cli.flags.repository)) {
     echo.error('Wrong usage.')
     echo.tip('Use -h for help.', true)
   }
+}
+
+// Reports what was brought over from a previous installation. The import itself runs when
+// the store module is first loaded, so there is nothing to decide here
+export function echoMigration(): void {
+  const imported = config.importedFromLegacy()
+  if (!imported.config && !imported.labels) return
+
+  echo.info(`Imported ${imported.config} config value(s) and ${imported.labels} label(s) from your previous installation.`)
+
+  // Clear up after ourselves, now that the data is safely in the new store
+  const removed = config.removeLegacy()
+  if (removed.length) echo.info(`Removed ${removed.length} old file(s) from ${config.legacyDir()}\n`)
+  else echo.tip(`The old files are in ${config.legacyDir()} and can be deleted.\n`)
 }
 
 // Deletes labels.json and creates it again with default values

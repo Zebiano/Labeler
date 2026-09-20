@@ -69,6 +69,9 @@ OPTIONS
     -u, --uploadLabels
         Upload custom labels to repository. Skips already existing labels.
 
+    -v, --version
+        Display the version number.
+
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under 'labels.json' to the repository:
         labeler -dur Labeler
@@ -104,18 +107,13 @@ const cli = Meow(helpText, {
     force: { shortFlag: 'f', type: 'boolean' },
     emptyLabelsFile: { shortFlag: 'e', type: 'boolean' },
     resetLabelsFile: { shortFlag: 'R', type: 'boolean' },
-    path: { shortFlag: 'p', type: 'boolean' }
+    path: { shortFlag: 'p', type: 'boolean' },
+    version: { shortFlag: 'v', type: 'boolean' }
   }
 })
 
 /* --- Start --- */
 console.log()
-
-// Variables
-const token = helper.assignFlag(cli, 'token')
-const owner = helper.assignFlag(cli, 'owner')
-const repository = helper.assignFlag(cli, 'repository')
-const host = helper.assignFlag(cli, 'host')
 
 // Main function
 async function main(): Promise<void> {
@@ -124,6 +122,15 @@ async function main(): Promise<void> {
 
   // Check if flags were called correctly
   helper.checkFlags(cli)
+
+  // Mention anything imported from a previous installation
+  helper.echoMigration()
+
+  // Variables
+  const token = helper.assignFlag(cli, 'token')
+  const owner = helper.assignFlag(cli, 'owner')
+  const repository = helper.assignFlag(cli, 'repository')
+  const host = helper.assignFlag(cli, 'host')
 
   // Check for flags
   if (cli.flags.bulkUpdate) helper.echoOwnerRepository(owner, 'Various')
@@ -169,11 +176,20 @@ async function main(): Promise<void> {
   // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
   if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
 
-  // If nothing happens, I'm assuming the user ran without flags
-  echo.error('Missing arguments.')
+  // Reached when no action flag matched, which includes flags Meow did not recognise
+  echo.error('Missing or unknown arguments.')
   echo.tip('Use -h for help.')
   echo.info(`Version ${pkg.version}`, true)
 }
 
 // Call main()
-main()
+// Inquirer throws ExitPromptError when a prompt cannot finish, which covers both Ctrl+C and
+// having no terminal at all. Neither deserves a stack trace
+main().catch((error: unknown) => {
+  if (error instanceof Error && error.name === 'ExitPromptError') {
+    if (process.stdin.isTTY) echo.abort('Cancelled.', true)
+    echo.error('No interactive terminal available.')
+    echo.tip('Use -f to skip the confirmation prompts.', true)
+  }
+  throw error
+})
