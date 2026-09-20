@@ -1,19 +1,17 @@
 #!/usr/bin/env node
 // Import: Packages
 import Meow from 'meow'
-import UpdateNotifier from 'update-notifier'
-import { readFile } from 'fs/promises'
-import Path from 'path'
-import { fileURLToPath } from 'url'
+import { readFileSync } from 'node:fs'
 
 // Import: Libs
 import * as inquirer from './lib/inquirer.js'
-import * as config from './lib/configstore.js'
+import * as store from './lib/store.js'
 import * as echo from './lib/echo.js'
 import * as helper from './lib/helper.js'
 
 // Import: Files
-const pkg = JSON.parse(await readFile(`${Path.dirname(fileURLToPath(import.meta.url))}/package.json`));
+// Resolved against this module, so it points at the package root from inside dist/
+const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { name: string, version: string }
 
 // Variables
 const helpText = `
@@ -86,77 +84,32 @@ EXAMPLES
     
     Delete and upload all labels from a GHE organization:
         labeler -dub -H github.yourhost.com
-`;
+`
 
 // Meow CLI
 const cli = Meow(helpText, {
   importMeta: import.meta,
   description: false,
   flags: {
-    'help': {
-      alias: 'h',
-      type: 'boolean'
-    },
-    'config': {
-      alias: 'c',
-      type: 'boolean'
-    },
-    'repository': {
-      alias: 'r',
-      type: 'string'
-    },
-    'owner': {
-      alias: 'o',
-      type: 'string'
-    },
-    'host': {
-      alias: 'H',
-      type: 'string'
-    },
-    'token': {
-      alias: 't',
-      type: 'string'
-    },
-    'bulkUpdate': {
-      alias: 'b',
-      type: 'boolean'
-    },
-    'deleteAllLabels': {
-      alias: 'd',
-      type: 'boolean'
-    },
-    'newLabel': {
-      alias: 'n',
-      type: 'boolean'
-    },
-    'uploadLabels': {
-      alias: 'u',
-      type: 'boolean'
-    },
-    'force': {
-      alias: 'f',
-      type: 'boolean'
-    },
-    'emptyLabelsFile': {
-      alias: 'e',
-      type: 'boolean'
-    },
-    'resetLabelsFile': {
-      alias: 'R',
-      type: 'boolean'
-    },
-    'path': {
-      alias: 'p',
-      type: 'boolean'
-    }
+    help: { shortFlag: 'h', type: 'boolean' },
+    config: { shortFlag: 'c', type: 'boolean' },
+    repository: { shortFlag: 'r', type: 'string' },
+    owner: { shortFlag: 'o', type: 'string' },
+    host: { shortFlag: 'H', type: 'string' },
+    token: { shortFlag: 't', type: 'string' },
+    bulkUpdate: { shortFlag: 'b', type: 'boolean' },
+    deleteAllLabels: { shortFlag: 'd', type: 'boolean' },
+    newLabel: { shortFlag: 'n', type: 'boolean' },
+    uploadLabels: { shortFlag: 'u', type: 'boolean' },
+    force: { shortFlag: 'f', type: 'boolean' },
+    emptyLabelsFile: { shortFlag: 'e', type: 'boolean' },
+    resetLabelsFile: { shortFlag: 'R', type: 'boolean' },
+    path: { shortFlag: 'p', type: 'boolean' }
   }
 })
 
 /* --- Start --- */
 console.log()
-
-// Update Notifier
-UpdateNotifier({ pkg }).notify({ isGlobal: true })
 
 // Variables
 const token = helper.assignFlag(cli, 'token')
@@ -165,7 +118,7 @@ const repository = helper.assignFlag(cli, 'repository')
 const host = helper.assignFlag(cli, 'host')
 
 // Main function
-async function main() {
+async function main(): Promise<void> {
   // Warn user if -f
   if (cli.flags.force) echo.warning('Detected -f, ignoring user confirmation.\n')
 
@@ -199,13 +152,13 @@ async function main() {
   // Run the interactive "create new label" CLI
   if (cli.flags.newLabel) {
     echo.tip('If you want to edit the file, here\'s the path:')
-    echo.info(config.path('labels'))
+    echo.info(store.path('labels'))
     console.log()
 
     // Ask if the user wants a fresh file or not
     if (!cli.flags.force && !cli.flags.emptyLabelsFile) {
       const answerFresh = await inquirer.choiceFreshNewLabels()
-      if (answerFresh) config.set('labels', { 'labels': [] })
+      if (answerFresh) store.set('labels', { 'labels': [] })
       console.log()
     }
 

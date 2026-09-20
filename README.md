@@ -112,7 +112,7 @@ I've tried my best to create a tool for everyone! If you prefer using flags, fee
 ## Commands
 ### `labeler -c`
 
-Interactive CLI for the config. Most likely the first command to run. I recommend setting the `token` and the `owner`, as they rarely change usually. If you want to remove an entry, simply enter nothing when asked.
+Interactive CLI for the config. I recommend running this as your first command and setting the `token` and `owner`, as they will probably not change that often. If you want to remove an entry, simply enter nothing when asked.
 
 - **token**: Personal GitHub Access Token. Create one called "Labeler" [here](https://github.com/settings/tokens) with the following permissions: `repo` and `admin:org`.
 - **owner**: Also known as the username. In [my case](https://github.com/Zebiano) it's `Zebiano` for example.
