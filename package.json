@@ -23,10 +23,14 @@
     "labeler"
   ],
   "scripts": {
+    "clean": "rm -rf dist .tsbuildinfo",
     "build": "tsc",
-    "start": "node dist/labeler.js",
+    "dev": "tsc --watch",
+    "start": "tsc && node dist/labeler.js",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prepack": "npm run clean && npm run build",
+    "prepublishOnly": "npm run lint"
   },
   "bin": {
     "labeler": "dist/labeler.js"

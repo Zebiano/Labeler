@@ -17,6 +17,9 @@
   <!-- <a alt="CLI Status"><img src="https://img.shields.io/badge/CLI-Failing-red.svg"></img></a> -->
 </div>
 
+> [!IMPORTANT]
+> Labeler has been ported to TypeScript and has undergone various changes with the v6 release, some of them breaking! Please refer to the changelog for more details, including instructions on how to migrate.
+
 ## Why?
 
 Because I was sick of always deleting the default labels and uploading my own ones.
@@ -26,6 +29,8 @@ Because I was sick of always deleting the default labels and uploading my own on
 By storing custom labels in a `labels.json` file, deleting the default ones from the repository and uploading those from said file.
 
 ## Installation
+
+`labeler` requires Node.js 22 (22.13.0 or newer), 24 or 26.
 
 ```sh
 npm install --global labeler

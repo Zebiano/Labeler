@@ -4,6 +4,7 @@ import { blue, bold, green, greenBright, red, yellow } from 'yoctocolors'
 /* --- Functions --- */
 // Each function takes an optional 'exit'. Passing true ends the process, so the
 // overloads below type that call as 'never' and let callers narrow after it.
+// process.exit() is always called without a code, so that it honours process.exitCode.
 
 // Info
 export function info(msg: string, exit: true): never
@@ -46,10 +47,13 @@ export function abort(msg: string, exit?: boolean): void {
 }
 
 // Error
+// Marks the run as failed, so the process exits with 1 however it ends. Most errors are
+// followed by a tip that does the exiting, and a failed label lets the rest carry on
 export function error(msg: string, exit: true): never
 export function error(msg: string, exit?: boolean): void
 export function error(msg: string, exit?: boolean): void {
   console.log(bold(red("Error: ")) + msg)
+  process.exitCode = 1
   if (exit) process.exit()
 }
 
