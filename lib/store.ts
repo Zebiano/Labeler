@@ -27,10 +27,12 @@ interface LabelsStore {
   labels: Label[]
 }
 
-// What a migration imported, so the CLI can mention it once at startup
+// What a migration imported and which v5 files it then removed, so the CLI can mention it
+// once at startup
 export interface Imported {
   config: number
   labels: number
+  removed: string[]
 }
 
 // Variables
@@ -43,7 +45,7 @@ const storeVersion = '1.0.0'
 // conf hides its bookkeeping behind this key. It must never reach the user
 const internalKey = '__internal__'
 
-const imported: Imported = { config: 0, labels: 0 }
+const imported: Imported = { config: 0, labels: 0, removed: [] }
 
 /* --- Migration --- */
 // v5 stored both files with the 'configstore' package, which used
@@ -61,7 +63,7 @@ export function legacyPaths(): { config: string, labels: string } {
 // Removes the v5 files once their contents are safely in the new stores. Only the two files
 // Labeler owns are touched. The directory is shared with every other tool that used the
 // configstore package, so it is never removed
-export function removeLegacy(): string[] {
+function removeLegacy(): string[] {
   const removed: string[] = []
   const paths = legacyPaths()
   for (const file of [paths.config, paths.labels]) {
@@ -88,7 +90,7 @@ function readJson(file: string): Record<string, unknown> | undefined {
 
 // What the migration brought over from v5, if anything
 export function importedFromLegacy(): Imported {
-  return { ...imported }
+  return { ...imported, removed: [...imported.removed] }
 }
 
 /* --- Stores --- */
@@ -124,6 +126,11 @@ const config = new Conf<Config>({
     }
   }
 })
+
+// Both stores are written and stamped once their constructors return, so the import is complete
+// and the v5 files can go. This happens here, not where the import is announced, because a run
+// can exit before reaching that point, and no later run would get another chance
+if (imported.config || imported.labels) imported.removed = removeLegacy()
 
 /* --- Functions --- */
 // Check for key in config

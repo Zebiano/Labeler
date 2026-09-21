@@ -90,11 +90,25 @@ function handleHttpError(response: Response, context: ErrorContext): void {
   }
 }
 
+// Why a request failed. fetch reports every failure to reach the server as 'fetch failed' and
+// keeps the reason on error.cause, such as 'connect ECONNREFUSED 127.0.0.1:443'. When a host
+// has several addresses and all of them fail, the cause is an AggregateError whose own message
+// is empty, so the reasons come from the errors it holds
+function failureReason(error: unknown): string {
+  if (!(error instanceof Error)) return String(error)
+  const cause = error.cause
+  if (cause instanceof AggregateError && !cause.message) {
+    return cause.errors.map((inner: unknown) => inner instanceof Error ? inner.message : String(inner)).join(', ')
+  }
+  if (cause instanceof Error && cause.message) return cause.message
+  return error.message
+}
+
 // Handles a request that never produced a response, for example a DNS or TLS failure
 function handleRequestError(error: unknown, context: ErrorContext): void {
   echo.error('An unexpected error occurred.')
   if (context.label) echo.error(`Label: ${JSON.stringify(context.label)}`)
-  echo.error(error instanceof Error ? error.message : String(error), context.exit)
+  echo.error(failureReason(error), context.exit)
 }
 
 /* --- Functions --- */

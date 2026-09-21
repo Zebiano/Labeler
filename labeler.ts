@@ -89,6 +89,10 @@ EXAMPLES
         labeler -dub -H github.yourhost.com
 `
 
+// Mention anything imported from a previous installation. This comes before Meow, which
+// exits straight away for -h and --version, because the import only happens on the first run
+helper.echoMigration()
+
 // Meow CLI
 const cli = Meow(helpText, {
   importMeta: import.meta,
@@ -122,9 +126,6 @@ async function main(): Promise<void> {
 
   // Check if flags were called correctly
   helper.checkFlags(cli)
-
-  // Mention anything imported from a previous installation
-  helper.echoMigration()
 
   // Variables
   const token = helper.assignFlag(cli, 'token')

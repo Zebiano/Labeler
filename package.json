@@ -3,7 +3,7 @@
   "version": "6.0.0",
   "description": "Easily manage default labels in GitHub repositories.",
   "type": "module",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "author": {
     "name": "Sebastião Barros (@Zebiano)"
   },
@@ -32,7 +32,8 @@
     "labeler": "dist/labeler.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.map"
   ],
   "engines": {
     "node": "^22.13.0 || ^24.0.0 || ^26.0.0"

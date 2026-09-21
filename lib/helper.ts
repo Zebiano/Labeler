@@ -126,18 +126,17 @@ export function checkFlags(cli: Cli): void {
   }
 }
 
-// Reports what was brought over from a previous installation. The import itself runs when
-// the store module is first loaded, so there is nothing to decide here
+// Reports what was brought over from a previous installation. The import and the removal of
+// the old files both happen when the store module is first loaded, so there is nothing to
+// decide here
 export function echoMigration(): void {
   const imported = config.importedFromLegacy()
   if (!imported.config && !imported.labels) return
 
+  console.log()
   echo.info(`Imported ${imported.config} config value(s) and ${imported.labels} label(s) from your previous installation.`)
-
-  // Clear up after ourselves, now that the data is safely in the new store
-  const removed = config.removeLegacy()
-  if (removed.length) echo.info(`Removed ${removed.length} old file(s) from ${config.legacyDir()}\n`)
-  else echo.tip(`The old files are in ${config.legacyDir()} and can be deleted.\n`)
+  if (imported.removed.length) echo.info(`Removed ${imported.removed.length} old file(s) from ${config.legacyDir()}`)
+  else echo.tip(`The old files are in ${config.legacyDir()} and can be deleted.`)
 }
 
 // Deletes labels.json and creates it again with default values
