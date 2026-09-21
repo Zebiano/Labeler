@@ -38,6 +38,8 @@ export interface Config {
   owner?: string | undefined
   repository?: string | undefined
   host?: string | undefined
+  apiVersion?: string | undefined
+  enterpriseApiVersion?: string | undefined
 }
 
 // A value that can come either from a flag or from the config
@@ -319,6 +321,14 @@ export async function cliConfig(): Promise<void> {
       // Host
       if (answer.host) config.set('config', answer)
       else config.remove('config', 'host')
+    } else if (Object.hasOwn(answer, 'apiVersion')) {
+      // API version for github.com
+      if (answer.apiVersion) config.set('config', answer)
+      else config.remove('config', 'apiVersion')
+    } else if (Object.hasOwn(answer, 'enterpriseApiVersion')) {
+      // API version for GitHub Enterprise
+      if (answer.enterpriseApiVersion) config.set('config', answer)
+      else config.remove('config', 'enterpriseApiVersion')
     } else {
       // Exit
       process.exit()

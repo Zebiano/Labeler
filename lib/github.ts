@@ -1,8 +1,16 @@
 // Import: Libs
 import * as echo from './echo.js'
+import * as store from './store.js'
 
 // Variables
 export const defaultHost = 'api.github.com'
+
+// GitHub versions its REST API by date and asks clients to pin one, so that a change to
+// their default cannot alter our behaviour. github.com serves the current version, while
+// GitHub Enterprise Server only gained it in release 3.22: older appliances answer an
+// unknown version with 410 Gone, so they get the version every supported release understands
+export const defaultApiVersion = '2026-03-10'
+export const enterpriseApiVersion = '2022-11-28'
 
 /* --- Types --- */
 // A label as it is stored in 'labels.json' and sent to GitHub
@@ -46,11 +54,21 @@ function apiUrl(host: string, path: string): string {
   else return `https://${host}${path}`
 }
 
+// The API version for a request, taken from the host it is addressed to. Either default can
+// be overridden in the config, for an instance that supports something else
+function apiVersion(url: string): string {
+  const enterprise = new URL(url).hostname != defaultHost
+  const override = store.get('config', enterprise ? 'enterpriseApiVersion' : 'apiVersion')
+  if (typeof override === 'string' && override) return override
+  return enterprise ? enterpriseApiVersion : defaultApiVersion
+}
+
 // Headers sent with every request
-function headers(token: string): Record<string, string> {
+function headers(token: string, url: string): Record<string, string> {
   return {
     Authorization: `Bearer ${token}`,
-    accept: 'application/vnd.github.v3+json',
+    accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': apiVersion(url),
     'user-agent': 'labeler'
   }
 }
@@ -87,7 +105,7 @@ export async function getLabels(exit: boolean, token: string, owner: string, hos
 
   // Get request
   try {
-    const response = await fetch(url, { headers: headers(token) })
+    const response = await fetch(url, { headers: headers(token, url) })
     if (response.ok) return await response.json() as GitHubLabel[]
     handleHttpError(response, { exit, faultyUrl: url })
   } catch (error) {
@@ -105,7 +123,7 @@ export async function saveLabel(exit: boolean, token: string, owner: string, hos
   try {
     const response = await fetch(url, {
       method: 'POST',
-      headers: { ...headers(token), 'content-type': 'application/json' },
+      headers: { ...headers(token, url), 'content-type': 'application/json' },
       body: JSON.stringify({
         name: label.name,
         description: label.description,
@@ -130,7 +148,7 @@ export async function saveLabel(exit: boolean, token: string, owner: string, hos
 export async function deleteLabel(exit: boolean, token: string, label: GitHubLabel): Promise<void> {
   // Delete request
   try {
-    const response = await fetch(label.url, { method: 'DELETE', headers: headers(token) })
+    const response = await fetch(label.url, { method: 'DELETE', headers: headers(token, label.url) })
     if (response.ok) return echo.remove(label.name)
     handleHttpError(response, { exit, label })
   } catch (error) {
@@ -145,7 +163,7 @@ export async function headRepoList(exit: boolean, token: string, owner: string, 
 
   // HEAD request
   try {
-    const response = await fetch(url, { method: 'HEAD', headers: headers(token) })
+    const response = await fetch(url, { method: 'HEAD', headers: headers(token, url) })
     if (response.ok) return response.headers.get('link') ?? undefined
     handleHttpError(response, { exit, faultyUrl: url })
   } catch (error) {
@@ -161,7 +179,7 @@ export async function getReposByPage(exit: boolean, token: string, owner: string
 
   // Get request
   try {
-    const response = await fetch(url, { headers: headers(token) })
+    const response = await fetch(url, { headers: headers(token, url) })
     if (response.ok) return await response.json() as GitHubRepository[]
     handleHttpError(response, { exit, faultyUrl: url })
   } catch (error) {

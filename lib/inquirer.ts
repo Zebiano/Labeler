@@ -1,6 +1,9 @@
 // Import: Packages
 import Inquirer from 'inquirer'
 
+// Import: Libs
+import { defaultApiVersion, enterpriseApiVersion } from './github.js'
+
 /* --- Types --- */
 // A single answered entry of the interactive config CLI
 export interface ConfigAnswer {
@@ -8,6 +11,8 @@ export interface ConfigAnswer {
   owner?: string
   repository?: string
   host?: string
+  apiVersion?: string
+  enterpriseApiVersion?: string
 }
 
 // The answers that make up a new label
@@ -34,35 +39,49 @@ function bgHex(hex: string, text: string): string {
 const inputToken = {
   type: 'password',
   name: 'token',
-  message: 'Enter Personal GitHub Access Token:'
+  message: "Enter Personal GitHub Access Token (e.g. 'ghp_...' or 'github_pat_...'):"
 } as const
 
 // Owner
 const inputOwner = {
   type: 'input',
   name: 'owner',
-  message: 'Enter GitHub owner:'
+  message: "Enter GitHub owner (e.g. 'Zebiano'):"
 } as const
 
 // Repository
 const inputRepository = {
   type: 'input',
   name: 'repository',
-  message: 'Enter GitHub repository:'
+  message: "Enter GitHub repository (e.g. 'Labeler'):"
 } as const
 
 // Host
 const inputHost = {
   type: 'input',
   name: 'host',
-  message: 'Enter GitHub Enterprise Host:'
+  message: "Enter GitHub Enterprise Host (e.g. 'github.yourhost.com'):"
+} as const
+
+// API version for github.com
+const inputApiVersion = {
+  type: 'input',
+  name: 'apiVersion',
+  message: `Enter API version for github.com (e.g. '${defaultApiVersion}'):`
+} as const
+
+// API version for GitHub Enterprise
+const inputEnterpriseApiVersion = {
+  type: 'input',
+  name: 'enterpriseApiVersion',
+  message: `Enter API version for GitHub Enterprise (e.g. '${enterpriseApiVersion}'):`
 } as const
 
 // Label name
 const inputLabelName = {
   type: 'input',
   name: 'name',
-  message: 'Enter Label name: ',
+  message: "Enter Label name (e.g. 'Bug :beetle:'):",
   validate: (value: string) => {
     if (value.length) return true
     else return 'Please enter a valid Label name. For example "Bug".'
@@ -73,14 +92,14 @@ const inputLabelName = {
 const inputLabelDescription = {
   type: 'input',
   name: 'description',
-  message: 'Enter Label description:'
+  message: "Enter Label description (optional, e.g. 'This is a bug'):"
 } as const
 
 // Color
 const inputLabelColor = {
   type: 'input',
   name: 'color',
-  message: 'Enter Label Color:',
+  message: "Enter Label Color (e.g. 'FC271E'):",
   validate: (value: string) => {
     if (value.length && /^([A-Fa-f0-9]{6})$/.test(value)) return true
     else return 'Please enter a valid Hex color. For example "D2DAE1".'
@@ -110,6 +129,14 @@ const listConfig = {
     {
       name: 'GitHub Enterprise Host',
       value: 'host'
+    },
+    {
+      name: 'API version (github.com)',
+      value: 'apiVersion'
+    },
+    {
+      name: 'API version (GitHub Enterprise)',
+      value: 'enterpriseApiVersion'
     },
     new Inquirer.Separator(),
     {
@@ -194,6 +221,8 @@ export async function config(): Promise<ConfigAnswer | true | undefined> {
   if (answerConfig.choice == 'token') return await Inquirer.prompt(inputToken)
   else if (answerConfig.choice == 'owner') return await Inquirer.prompt(inputOwner)
   else if (answerConfig.choice == 'host') return await Inquirer.prompt(inputHost)
+  else if (answerConfig.choice == 'apiVersion') return await Inquirer.prompt(inputApiVersion)
+  else if (answerConfig.choice == 'enterpriseApiVersion') return await Inquirer.prompt(inputEnterpriseApiVersion)
   else if (answerConfig.choice == 'repository') {
     console.clear()
     const answerConfirm = await Inquirer.prompt(confirmRepo)

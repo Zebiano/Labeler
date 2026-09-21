@@ -88,6 +88,9 @@ OPTIONS
     -u, --uploadLabels
         Upload custom labels to repository. Skips already existing labels.
 
+    -v, --version
+        Display the version number.
+
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under 'labels.json' to the repository:
         labeler -dur Labeler
@@ -118,6 +121,8 @@ Interactive CLI for the config. I recommend running this as your first command a
 - **owner**: Also known as the username. In [my case](https://github.com/Zebiano) it's `Zebiano` for example.
 - **repository**: Name of the repository. As an example, this repo would be `labeler`. It is **not recommended** to set this setting as it may cause non-intentional deletions of labels.
 - **host**: Custom host, useful for GitHub Enterprise Instances. For example `github.yourhost.com`.
+- **apiVersion**: GitHub REST API version to use for github.com. You should rarely need this, as Labeler already uses the latest stable version, for example `2026-03-10`.
+- **enterpriseApiVersion**: GitHub REST API version to use for GitHub Enterprise hosts. Defaults to `2022-11-28`, which every supported GitHub Enterprise Server release understands. If your instance runs 3.22 or newer, you can set it to `2026-03-10`.
 
 In case you need to access a repository from another owner, simply run the `-o [OWNER]` flag and the one stored in the config will be ignored.
 
