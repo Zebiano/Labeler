@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist .tsbuildinfo",
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/labeler.js",
     "dev": "tsc --watch",
     "start": "tsc && node dist/labeler.js",
     "lint": "eslint .",
