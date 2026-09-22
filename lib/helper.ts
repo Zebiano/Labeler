@@ -3,49 +3,20 @@ import { bold } from 'yoctocolors'
 
 // Import: Libs
 import * as inquirer from './inquirer.js'
-import * as config from './store.js'
+import * as store from './store.js'
 import * as github from './github.js'
 import * as echo from './echo.js'
-import type { Label } from './github.js'
+import type { Config } from './store.js'
+
+// Import: Types
+// Meow's parsed result, typed from the flags declared in the entry point
+import type { Cli } from '../labeler.js'
 
 /* --- Types --- */
-// The flags Meow parses off the command line
-export interface Flags {
-  help?: boolean | undefined
-  config?: boolean | undefined
-  bulkUpdate?: boolean | undefined
-  deleteAllLabels?: boolean | undefined
-  newLabel?: boolean | undefined
-  uploadLabels?: boolean | undefined
-  force?: boolean | undefined
-  emptyLabelsFile?: boolean | undefined
-  resetLabelsFile?: boolean | undefined
-  path?: boolean | undefined
-  token?: string | undefined
-  owner?: string | undefined
-  repository?: string | undefined
-  host?: string | undefined
-}
-
-// The part of Meow's result these helpers need
-export interface Cli {
-  flags: Flags
-}
-
-// The values stored in the config
-export interface Config {
-  token?: string | undefined
-  owner?: string | undefined
-  repository?: string | undefined
-  host?: string | undefined
-  apiVersion?: string | undefined
-  enterpriseApiVersion?: string | undefined
-}
-
-// A value that can come either from a flag or from the config
+/** A value that can come either from a flag or from the config */
 export type ConfigKey = 'token' | 'owner' | 'repository' | 'host'
 
-// The values every repository operation requires
+/** The values every repository operation requires */
 export interface Target {
   token: string
   owner: string
@@ -53,43 +24,58 @@ export interface Target {
 }
 
 /* --- Functions --- */
-// Echo the owner and repository
+/**
+ * Prints the owner and repository being worked on.
+ * @param owner Repository owner
+ * @param repository Repository name
+ */
 export function echoOwnerRepository(owner: string | null, repository: string | null): void {
   echo.owner(String(owner))
   echo.repository(String(repository))
   console.log()
 }
 
-// Returns flag from arguments, or from config
-// Meow omits string flags that were not passed, so an absent key means "fall back to the config"
+/**
+ * Resolves a value from the flags, then the config. Meow omits string flags that were not
+ * passed, so an absent key means "fall back to the config".
+ * @param cli The parsed command line
+ * @param flag Which value
+ * @returns The value, the default host, or null
+ */
 export function assignFlag(cli: Cli, flag: 'host'): string
 export function assignFlag(cli: Cli, flag: ConfigKey): string | null
 export function assignFlag(cli: Cli, flag: ConfigKey): string | null {
   if (Object.hasOwn(cli.flags, flag)) return cli.flags[flag] ?? null
-  else if (config.has('config', flag)) return config.get('config', flag) as string
-  else {
-    if (flag == 'host') return github.defaultHost
-    else return null
-  }
+  if (store.has('config', flag)) return store.get('config', flag) as string
+  return flag == 'host' ? github.defaultHost : null
 }
 
-// Echos the path for labels.json
+/** Prints the path of 'labels.json' */
 export function labelsPath(): void {
   echo.info("Path for 'labels.json'")
-  echo.info(config.path('labels') as string)
+  echo.info(store.path('labels'))
   console.log()
 }
 
-// Censor config
-// Masks the whole token except its last four characters, whatever its length. A fixed-width
-// mask leaked most of a long token and none of a short one
+/**
+ * Masks the token for display, leaving only its last four characters. A fixed-width mask
+ * leaked most of a long token and none of a short one.
+ * @param values The stored config
+ * @returns A copy, with the token masked
+ */
 export function censorConfig(values: Config): Config {
   if (!values.token) return { ...values }
   const visible = values.token.length > 8 ? values.token.slice(-4) : ''
   return { ...values, token: '*'.repeat(values.token.length - visible.length) + visible }
 }
 
-// Check required flags. Every branch exits, so the returned values are always set
+/**
+ * Demands the values a repository operation needs, reporting whichever is missing.
+ * @param token Personal access token
+ * @param owner Repository owner
+ * @param repository Repository name
+ * @returns All three, since every missing one exits
+ */
 export function checkRequiredFlags(token: string | null, owner: string | null, repository: string | null): Target {
   if (!token && !owner && !repository) {
     echo.error('Missing arguments.')
@@ -107,90 +93,105 @@ export function checkRequiredFlags(token: string | null, owner: string | null, r
   return { token, owner, repository }
 }
 
-// Check flags
+/**
+ * Rejects flag combinations the CLI cannot honour.
+ * @param cli The parsed command line
+ */
 export function checkFlags(cli: Cli): void {
-  // Bulk update only exists for GitHub Enterprise. The resolved host is what matters, not
-  // the flag, because a host can equally come from the config
-  if (cli.flags.bulkUpdate && assignFlag(cli, 'host') == github.defaultHost) {
+  const flags = cli.flags
+
+  /* Bulk update only exists for GitHub Enterprise. The resolved host is what matters, not
+     the flag, because a host can equally come from the config */
+  if (flags.bulkUpdate && assignFlag(cli, 'host') == github.defaultHost) {
     echo.error('Bulk update requires a GitHub Enterprise host.')
     echo.tip('Specify one with -H, or store one with -c.', true)
   }
 
-  // Check for usage of flags that shouldn't be used together
-  if (((cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.host || cli.flags.bulkUpdate || cli.flags.uploadLabels || cli.flags.deleteAllLabels) && (cli.flags.newLabel || cli.flags.config))
-    || (cli.flags.config && cli.flags.newLabel)
-    || (cli.flags.emptyLabelsFile && (cli.flags.repository || cli.flags.token || cli.flags.owner || cli.flags.host || cli.flags.bulkUpdate || cli.flags.uploadLabels || cli.flags.deleteAllLabels || cli.flags.config || cli.flags.resetLabelsFile))
-    || (cli.flags.bulkUpdate && cli.flags.repository)) {
+  /* Check for usage of flags that shouldn't be used together. The remote flags act on a
+     repository, which the local labels and config commands never do */
+  const remote = flags.repository || flags.token || flags.owner || flags.host || flags.bulkUpdate || flags.uploadLabels || flags.deleteAllLabels
+  if ((remote && (flags.newLabel || flags.config))
+    || (flags.config && flags.newLabel)
+    || (flags.emptyLabelsFile && (remote || flags.config || flags.resetLabelsFile))
+    || (flags.bulkUpdate && flags.repository)) {
     echo.error('Wrong usage.')
     echo.tip('Use -h for help.', true)
   }
 }
 
-// Reports what was brought over from a previous installation. The import and the removal of
-// the old files both happen when the store module is first loaded, so there is nothing to
-// decide here
+/**
+ * Asks the user to confirm an action, unless -f was passed.
+ * @param cli The parsed command line
+ * @param ask Poses the question
+ * @param abort Named in the abort message when the user declines
+ * @param skippable Whether declining skips the action instead of ending the run
+ * @returns Whether to go ahead
+ */
+async function confirmed(cli: Cli, ask: () => Promise<boolean>, abort: string, skippable = false): Promise<boolean> {
+  if (cli.flags.force || await ask()) return true
+  if (skippable) return false
+  console.log()
+  echo.abort(abort, true)
+}
+
+/**
+ * Reports what was brought over from a previous installation. The import and the removal of the
+ * old files both happen as the store module loads, so there is nothing to decide here.
+ */
 export function echoMigration(): void {
-  const imported = config.importedFromLegacy()
+  const imported = store.importedFromLegacy()
   if (!imported.config && !imported.labels) return
 
   console.log()
   echo.info(`Imported ${imported.config} config value(s) and ${imported.labels} label(s) from your previous installation.`)
-  if (imported.removed.length) echo.info(`Removed ${imported.removed.length} old file(s) from ${config.legacyDir()}`)
-  else echo.tip(`The old files are in ${config.legacyDir()} and can be deleted.`)
+  if (imported.removed.length) echo.info(`Removed ${imported.removed.length} old file(s) from ${store.legacyDir()}`)
+  else echo.tip(`The old files are in ${store.legacyDir()} and can be deleted.`)
 }
 
-// Deletes labels.json and creates it again with default values
+/**
+ * Replaces the stored labels with the shipped defaults.
+ * @param cli The parsed command line
+ */
 export async function resetLabelsFile(cli: Cli): Promise<void> {
-  // Ask if the user is sure
-  if (!cli.flags.force) {
-    const answer = await inquirer.confirmResetLabels()
-    if (!answer.resetLabels) {
-      console.log()
-      echo.abort("Reset 'labels.json'.", true)
-    }
-  }
+  await confirmed(cli, inquirer.confirmResetLabels, "Reset 'labels.json'.")
 
   // Reset labels
   echo.info("Resetting 'labels.json'...")
-  config.resetLabels()
+  store.resetLabels()
   echo.success('Done!\n')
 }
 
-// Empties all labels from labels.json
+/**
+ * Removes every label from 'labels.json'.
+ * @param cli The parsed command line
+ */
 export async function emptyLabelsFile(cli: Cli): Promise<void> {
-  // Ask if the user is sure
-  if (!cli.flags.force) {
-    const answer = await inquirer.confirmEmptyLabels()
-    if (!answer.emptyLabels) {
-      console.log()
-      echo.abort("Delete labels from 'labels.json'.", true)
-    }
-  }
+  await confirmed(cli, inquirer.confirmEmptyLabels, "Delete labels from 'labels.json'.")
 
   // Empty labels.json
   echo.info("Emptying 'labels.json'...")
-  config.set('labels', { 'labels': [] })
-  if (cli.flags.newLabel) echo.success('Done.\n')
-  else echo.success('Done.\n', true)
+  store.set('labels', { 'labels': [] })
+  echo.success('Done.\n', !cli.flags.newLabel) // -n carries on to add labels
 }
 
-// Upload all labels from labels.json
+/**
+ * Uploads every stored label to a repository.
+ * @param token Personal access token
+ * @param owner Repository owner
+ * @param host API host
+ * @param repository Repository name
+ * @param cli The parsed command line
+ * @param exit Whether finishing ends the run
+ */
 export async function uploadLabels(token: string | null, owner: string | null, host: string, repository: string | null, cli: Cli, exit: boolean): Promise<void> {
   // Check required Flags
   const target = checkRequiredFlags(token, owner, repository)
 
   // Variables
-  const labels = config.getAll('labels') as Label[]
+  const labels = store.getAll('labels')
 
-  // Ask if the user is sure
-  if (!cli.flags.force) {
-    const answer = await inquirer.confirmUploadLabels(target.repository)
-    if (!answer.uploadLabels) {
-      if (cli.flags.bulkUpdate) return
-      console.log()
-      echo.abort(`Upload labels to ${target.repository}.`, true)
-    }
-  }
+  // Ask if the user is sure. During a bulk update, declining only skips this repository
+  if (!await confirmed(cli, () => inquirer.confirmUploadLabels(target.repository), `Upload labels to ${target.repository}.`, cli.flags.bulkUpdate)) return
   echo.info(bold(`Uploading labels to ${target.repository}...`))
 
   // Run promises (aka upload all labels)
@@ -201,20 +202,21 @@ export async function uploadLabels(token: string | null, owner: string | null, h
   if (exit) echo.success('Finished!', exit)
 }
 
-// Deletes all labels from a repository
+/**
+ * Deletes every label in a repository.
+ * @param token Personal access token
+ * @param owner Repository owner
+ * @param host API host
+ * @param repository Repository name
+ * @param cli The parsed command line
+ * @param exit Whether finishing ends the run
+ */
 export async function deleteAllLabels(token: string | null, owner: string | null, host: string, repository: string | null, cli: Cli, exit: boolean): Promise<void> {
   // Check required Flags
   const target = checkRequiredFlags(token, owner, repository)
 
-  // Ask if the user is sure
-  if (!cli.flags.force) {
-    const answer = await inquirer.confirmDeleteAllLabels(target.repository)
-    if (!answer.deleteAllLabels) {
-      if (cli.flags.bulkUpdate) return
-      console.log()
-      echo.abort(`Delete labels from ${target.repository}.`, true)
-    }
-  }
+  // Ask if the user is sure. During a bulk update, declining only skips this repository
+  if (!await confirmed(cli, () => inquirer.confirmDeleteAllLabels(target.repository), `Delete labels from ${target.repository}.`, cli.flags.bulkUpdate)) return
   echo.info(bold(`Deleting labels from ${target.repository}...`))
 
   // Get all labels from repository
@@ -231,7 +233,13 @@ export async function deleteAllLabels(token: string | null, owner: string | null
   }
 }
 
-// Gets array of repository names in "owner" organization
+/**
+ * Lists every repository in an organization.
+ * @param token Personal access token
+ * @param owner Organization name
+ * @param host API host
+ * @returns Their names
+ */
 export async function getRepositories(token: string | null, owner: string | null, host: string): Promise<string[]> {
   // Variables
   const repos: string[] = []
@@ -244,8 +252,8 @@ export async function getRepositories(token: string | null, owner: string | null
   const link = await github.headRepoList(true, target.token, target.owner, host, 1)
   if (!link) echo.error('Unexpected status or response on HEAD request for GHE repository list.', true)
 
-  // By passing in 1 as the per_page value, the "last" page link will have a page number equal to the number of repos
-  // To compute the actual number of necessary requests, divide the number of repos by the requested per_page limit (max 100)
+  /* By passing in 1 as the per_page value, the "last" page link will have a page number equal to the number of repos
+     To compute the actual number of necessary requests, divide the number of repos by the requested per_page limit (max 100) */
   const numberOfRepos = getPageCountFromLinkHeader(link)
   const pageCount = Math.ceil(numberOfRepos / perPage)
   echo.info(bold(`Fetching list of ${numberOfRepos} repository name(s) across ${pageCount} page(s), in organization ${target.owner}...`))
@@ -253,24 +261,22 @@ export async function getRepositories(token: string | null, owner: string | null
   // Push every repo into repos array
   for (let i = 1; i <= pageCount; i++) {
     const res = await github.getReposByPage(true, target.token, target.owner, host, i, perPage)
-    for (const repo of res ?? []) {
-      // Get the url for each repo object and extract just the name at the end of the url
-      repos.push(repo.html_url.substring(repo.html_url.lastIndexOf('/') + 1))
-    }
+    repos.push(...(res ?? []).map(repo => repo.name))
   }
   return repos
 }
 
-// Gets the total number of repositories by parsing the "last" rel of the "link" response header
-// GitHubApi has a per_page limit of 100, default 30
+/**
+ * Counts an organization's repositories, from the "last" rel of a "link" header requested one
+ * repository per page.
+ * @param header The 'link' response header
+ * @returns The number of repositories
+ */
 export function getPageCountFromLinkHeader(header: string): number {
-  if (!header || header.length === 0) echo.error('Header input must not be null or of zero length.', true)
+  if (!header) echo.error('Header input must not be null or of zero length.', true)
 
-  // Split parts by comma
-  const parts = header.split(',')
-
-  // Parse each part into a named link
-  for (const part of parts) {
+  // Parse each comma-separated part into a named link
+  for (const part of header.split(',')) {
     const section = part.split(';')
     if (section.length !== 2) echo.error('Section could not be properly split on ";".', true)
 
@@ -287,75 +293,50 @@ export function getPageCountFromLinkHeader(header: string): number {
   echo.error('Repository page count could not be found for given GHE org.', true)
 }
 
-// Opens the interactive config CLI
+/** Opens the interactive config CLI, which runs until the user chooses to exit */
 export async function cliConfig(): Promise<void> {
-  // Clear
-  console.clear()
+  while (true) {
+    // Display current config
+    console.clear()
+    echo.info('Current config:')
+    console.log(censorConfig(store.getAll('config')))
+    console.log()
 
-  // Display current config
-  echo.info("Current config:")
-  console.log(censorConfig(config.getAll('config') as Config))
-  console.log()
-
-  // Get config input from user
-  const answer = await inquirer.config()
-
-  // Check input
-  // inquirer.config() answers true when "Exit Config" is chosen
-  if (answer === true) process.exit()
-  else if (answer) {
-    if (Object.hasOwn(answer, 'token')) {
-      // Token
-      if (answer.token) config.set('config', answer)
-      else config.remove('config', 'token')
-    } else if (Object.hasOwn(answer, 'owner')) {
-      // Owner
-      if (answer.owner) config.set('config', answer)
-      else config.remove('config', 'owner')
-    } else if (Object.hasOwn(answer, 'repository')) {
-      // Repository
-      if (answer.repository) config.set('config', answer)
-      else config.remove('config', 'repository')
-    } else if (Object.hasOwn(answer, 'host')) {
-      // Host
-      if (answer.host) config.set('config', answer)
-      else config.remove('config', 'host')
-    } else if (Object.hasOwn(answer, 'apiVersion')) {
-      // API version for github.com
-      if (answer.apiVersion) config.set('config', answer)
-      else config.remove('config', 'apiVersion')
-    } else if (Object.hasOwn(answer, 'enterpriseApiVersion')) {
-      // API version for GitHub Enterprise
-      if (answer.enterpriseApiVersion) config.set('config', answer)
-      else config.remove('config', 'enterpriseApiVersion')
-    } else {
-      // Exit
-      process.exit()
-    }
+    // Store the new value. An empty one removes the setting
+    const answer = await inquirer.config()
+    if (answer == 'exit') process.exit()
+    if (!answer) continue
+    if (answer.value) store.set('config', { [answer.key]: answer.value })
+    else store.remove('config', answer.key)
   }
-
-  // Call this function again until user exits
-  await cliConfig()
 }
 
-// Opens the interactive "create new label" CLI
+/**
+ * Opens the interactive "create new label" CLI, which runs until the user presses Ctrl+C.
+ * @param cli The parsed command line
+ */
 export async function cliNewLabel(cli: Cli): Promise<void> {
-  // Variables
-  const labels = config.getAll('labels') as Label[]
+  echo.tip('If you want to edit the file, here\'s the path:')
+  echo.info(store.path('labels'))
+  console.log()
 
-  // Get config input from user
-  const answer = await inquirer.newLabel() as Label
+  // Ask if the user wants a fresh file or not
+  if (!cli.flags.force && !cli.flags.emptyLabelsFile) {
+    if (await inquirer.choiceFreshNewLabels()) store.set('labels', { 'labels': [] })
+    console.log()
+  }
 
-  // Check for dupe
-  const dupe = labels.some(label => label.name == answer.name)
+  echo.info('Create new labels:')
+  while (true) {
+    const labels = store.getAll('labels')
+    const label = await inquirer.newLabel()
 
-  // Save if not dupe
-  if (!dupe) {
-    labels.push(answer)
-    config.set('labels', { 'labels': labels })
-    echo.success('Saved label! Use Ctrl+C to exit.\n')
-  } else echo.error(`Label '${answer.name}' already exists! Please choose another name.\n`)
-
-  // Call this function again until user exits
-  await cliNewLabel(cli)
+    // Save unless the name is taken
+    if (labels.some(existing => existing.name == label.name)) {
+      echo.error(`Label '${label.name}' already exists! Please choose another name.\n`)
+    } else {
+      store.set('labels', { 'labels': [...labels, label] })
+      echo.success('Saved label! Use Ctrl+C to exit.\n')
+    }
+  }
 }

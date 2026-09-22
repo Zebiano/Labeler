@@ -11,62 +11,72 @@ import type { Label } from './github.js'
 import defaultLabels from './_default_labels.json' with { type: 'json' }
 
 /* --- Types --- */
-// Which of the two stores to act on
+/** Which of the two stores to act on */
 export type StoreType = 'config' | 'labels'
 
-// The values kept in the config store
+/** The values kept in the config store */
 export interface Config {
   token?: string
   owner?: string
   repository?: string
   host?: string
+  apiVersion?: string
+  enterpriseApiVersion?: string
 }
 
-// The shape of the labels store
+/** The shape of the labels store */
 interface LabelsStore {
   labels: Label[]
 }
 
-// What a migration imported and which v5 files it then removed, so the CLI can mention it
-// once at startup
+/** What a migration imported, and which v5 files it then removed */
 export interface Imported {
+  /** Config values brought over */
   config: number
+  /** Labels brought over */
   labels: number
+  /** Paths of the v5 files that were deleted */
   removed: string[]
 }
 
 // Variables
 const name = 'labeler'
 
-// The layout version of the stores themselves, deliberately independent of the app version
-// so that releasing a new Labeler does not imply a store migration
+/** Layout version of the stores, kept apart from the app version on purpose */
 const storeVersion = '1.0.0'
 
-// conf hides its bookkeeping behind this key. It must never reach the user
+/** conf hides its bookkeeping behind this key. It must never reach the user */
 const internalKey = '__internal__'
 
 const imported: Imported = { config: 0, labels: 0, removed: [] }
 
 /* --- Migration --- */
-// v5 stored both files with the 'configstore' package, which used
-// <XDG_CONFIG_HOME>/configstore on every platform, unlike conf's platform-native paths.
-// The old location cannot be derived from the new one, so it is spelled out here
+/**
+ * Where v5 kept its files. The 'configstore' package used the same path on every platform,
+ * unlike conf, so this cannot be derived from the current location.
+ * @returns The v5 directory
+ */
 export function legacyDir(): string {
   return Path.join(process.env['XDG_CONFIG_HOME'] ?? Path.join(Os.homedir(), '.config'), 'configstore')
 }
 
+/**
+ * Locates the two v5 files.
+ * @returns Their paths
+ */
 export function legacyPaths(): { config: string, labels: string } {
   const dir = legacyDir()
   return { config: Path.join(dir, `${name}.json`), labels: Path.join(dir, `${name}_labels.json`) }
 }
 
-// Removes the v5 files once their contents are safely in the new stores. Only the two files
-// Labeler owns are touched. The directory is shared with every other tool that used the
-// configstore package, so it is never removed
+/**
+ * Removes the v5 files, once their contents are safely in the new stores. Only Labeler's two
+ * files are touched, never the directory, which is shared with every other configstore user.
+ * @returns The paths that were removed
+ */
 function removeLegacy(): string[] {
   const removed: string[] = []
-  const paths = legacyPaths()
-  for (const file of [paths.config, paths.labels]) {
+  for (const file of Object.values(legacyPaths())) {
     try {
       if (existsSync(file)) {
         unlinkSync(file)
@@ -79,7 +89,11 @@ function removeLegacy(): string[] {
   return removed
 }
 
-// Reads a JSON file, treating a missing or unreadable one as absent
+/**
+ * Reads a JSON file, treating a missing or unreadable one as absent.
+ * @param file Path to read
+ * @returns Its contents, or undefined
+ */
 function readJson(file: string): Record<string, unknown> | undefined {
   try {
     return JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
@@ -88,16 +102,16 @@ function readJson(file: string): Record<string, unknown> | undefined {
   }
 }
 
-// What the migration brought over from v5, if anything
+/**
+ * Reports what the migration brought over from v5, if anything.
+ * @returns The counts and the removed files
+ */
 export function importedFromLegacy(): Imported {
   return { ...imported, removed: [...imported.removed] }
 }
 
 /* --- Stores --- */
-// Both stores live wherever conf places them by default, which is the platform's standard
-// config directory. 'labeler -p' prints the resolved path.
-// conf stamps the store version on first write and compares it on every later start, so the
-// migrations below run at most once per installation and cost no filesystem access after that
+/** The labels store, in conf's default directory. The migration imports a v5 file once */
 const labelsConfig = new Conf<LabelsStore>({
   projectName: name,
   configName: 'labels',
@@ -113,6 +127,7 @@ const labelsConfig = new Conf<LabelsStore>({
   }
 })
 
+/** The config store, beside the labels. 'labeler -p' prints the resolved directory */
 const config = new Conf<Config>({
   projectName: name,
   projectVersion: storeVersion,
@@ -127,78 +142,85 @@ const config = new Conf<Config>({
   }
 })
 
-// Both stores are written and stamped once their constructors return, so the import is complete
-// and the v5 files can go. This happens here, not where the import is announced, because a run
-// can exit before reaching that point, and no later run would get another chance
+/* The stores are written and stamped once their constructors return, so the v5 files can go
+   here rather than where the import is announced, which a run can exit before reaching */
 if (imported.config || imported.labels) imported.removed = removeLegacy()
 
+/**
+ * Both stores behind one lookup. The functions below are addressed by name, so this loosens
+ * conf's per-store key typing on purpose.
+ */
+const stores = { config, labels: labelsConfig } as unknown as Record<StoreType, Conf<Record<string, unknown>>>
+
 /* --- Functions --- */
-// Check for key in config
+/**
+ * Checks a store for a key.
+ * @param type Which store
+ * @param key Key to look for
+ * @returns Whether it is set
+ */
 export function has(type: StoreType, key: string): boolean {
-  switch (type) {
-    case 'config': return config.has(key as keyof Config)
-    case 'labels': return labelsConfig.has(key as keyof LabelsStore)
-  }
+  return stores[type].has(key)
 }
 
-// Get key
+/**
+ * Reads one value.
+ * @param type Which store
+ * @param key Key to read
+ * @returns Its value, or undefined
+ */
 export function get(type: StoreType, key: string): unknown {
-  switch (type) {
-    case 'config': return config.get(key as keyof Config)
-    case 'labels': return labelsConfig.get(key as keyof LabelsStore)
-  }
+  return stores[type].get(key)
 }
 
-// Get all
+/**
+ * Reads a whole store. The labels are seeded with the defaults when missing, and conf's own
+ * bookkeeping is stripped from the config.
+ * @param type Which store
+ * @returns Its contents
+ */
 export function getAll(type: 'config'): Config
 export function getAll(type: 'labels'): Label[]
 export function getAll(type: StoreType): Config | Label[] {
-  switch (type) {
-    case 'config': {
-      // conf's own bookkeeping shares the file, but is not the user's to see or edit
-      const values = { ...config.store } as Record<string, unknown>
-      delete values[internalKey]
-      return values as Config
-    }
-    case 'labels':
-      if (!has('labels', 'labels')) resetLabels()
-      return labelsConfig.get('labels') ?? []
+  if (type == 'labels') {
+    if (!has('labels', 'labels')) resetLabels()
+    return labelsConfig.get('labels') ?? []
   }
+
+  // conf's own bookkeeping shares the file, but is not the user's to see or edit
+  const values = { ...config.store } as Record<string, unknown>
+  delete values[internalKey]
+  return values as Config
 }
 
-// Set new key
+/**
+ * Merges values into a store.
+ * @param type Which store
+ * @param object The values to write
+ */
 export function set(type: StoreType, object: object): void {
-  switch (type) {
-    case 'config': config.set(object as Partial<Config>); break
-    case 'labels': labelsConfig.set(object as LabelsStore); break
-  }
+  stores[type].set(object)
 }
 
-// Delete key
+/**
+ * Removes one value.
+ * @param type Which store
+ * @param key Key to remove
+ */
 export function remove(type: StoreType, key: string): void {
-  switch (type) {
-    case 'config': config.delete(key as keyof Config); break
-    case 'labels': labelsConfig.delete(key as keyof LabelsStore); break
-  }
+  stores[type].delete(key)
 }
 
-// Delete all items
-export function clear(type: StoreType): void {
-  switch (type) {
-    case 'config': config.clear(); break
-    case 'labels': labelsConfig.clear(); break
-  }
-}
-
-// Reset labels.json
+/** Overwrites the labels store with the shipped defaults */
 export function resetLabels(): void {
   set('labels', { labels: defaultLabels })
 }
 
-// Get path
+/**
+ * Locates a store's file.
+ * @param type Which store
+ * @returns Its path
+ */
 export function path(type: StoreType): string {
-  switch (type) {
-    case 'config': return config.path
-    case 'labels': return labelsConfig.path
-  }
+  return stores[type].path
 }
