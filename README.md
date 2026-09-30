@@ -117,12 +117,45 @@ I've tried my best to create a tool for everyone! If you prefer using flags, fee
 
 `labeler` comes with some predefined labels, but you can of course use your own. By running  `labeler -en`, you'll start a fresh new file. The `path` to the file will be in the terminal, in case you prefer to open and edit it with your editor of choice.
 
+## Authentication
+
+`labeler` works on GitHub on your behalf, so it needs a personal access token. Use a fine-grained token, which you can limit to the repositories and permissions `labeler` actually needs:
+
+1. Open the [fine-grained token form](https://github.com/settings/personal-access-tokens/new?name=Labeler&description=Manages+repository+labels+with+labeler&issues=write). It fills in the name and the permission for you.
+   1. On GitHub Enterprise Server (3.17 or newer), that link won't work. Open `https://<YOUR-HOST>/settings/personal-access-tokens/new` instead and follow the same steps.
+2. Set "Permissions -> Issues" to "Read and write".
+3. Customize other fields to your liking.
+   1. If the repositories belong to an organization, choose it as "Resource owner". A token only works for one owner.
+   2. Bulk updates (`-b`) change every repository in the organization, so they need "All repositories".
+4. Generate the token, then save it with `labeler -c` or pass it with `-t`.
+
+If you prefer, you can also make use of "Tokens (classic)", but they can't be limited to specific repositories. [Create one](https://github.com/settings/tokens/new) called "Labeler" with a single scope:
+
+- `public_repo` if every repository you want to label is public.
+- `repo` if any of them is private.
+
+If the repositories belong to an organization that uses SAML single sign-on, [authorize the token](https://docs.github.com/en/enterprise-cloud@latest/authentication/authenticating-with-single-sign-on/authorizing-a-personal-access-token-for-use-with-single-sign-on) for it afterwards.
+
+<details>
+<summary>Why these permissions?</summary>
+
+These are all the requests `labeler` makes:
+
+| What `labeler` does                        | Request                                      | Fine-grained permission | Classic scope                                     |
+| ------------------------------------------ | -------------------------------------------- | ----------------------- | ------------------------------------------------- |
+| Read a repository's labels (`-d`)          | `GET /repos/{owner}/{repo}/labels`           | Issues: read            | `public_repo`, or `repo` for private repositories |
+| Create labels (`-u`)                       | `POST /repos/{owner}/{repo}/labels`          | Issues: write           | `public_repo`, or `repo` for private repositories |
+| Delete labels (`-d`)                       | `DELETE /repos/{owner}/{repo}/labels/{name}` | Issues: write           | `public_repo`, or `repo` for private repositories |
+| List an organization's repositories (`-b`) | `GET /orgs/{org}/repos`                      | Metadata: read          | None, or `repo` to include private repositories   |
+
+</details>
+
 ## Commands
 ### `labeler -c`
 
 Interactive CLI for the config. I recommend running this as your first command and setting the `token` and `owner`, as they will probably not change that often. If you want to remove an entry, simply enter nothing when asked.
 
-- **token**: Personal GitHub Access Token. Create one called "Labeler" [here](https://github.com/settings/tokens) with the following permissions: `repo` and `admin:org`.
+- **token**: Personal access token. See "[Authentication](#authentication)" for which kind to create and the permissions it needs.
 - **owner**: Also known as the username. In [my case](https://github.com/Zebiano) it's `Zebiano` for example.
 - **repository**: Name of the repository. As an example, this repo would be `labeler`. It is **not recommended** to set this setting as it may cause non-intentional deletions of labels.
 - **host**: Custom host, useful for GitHub Enterprise Instances. For example `github.yourhost.com`.
