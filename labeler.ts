@@ -1,19 +1,10 @@
 #!/usr/bin/env node
 // Import: Packages
 import Meow from 'meow'
-import UpdateNotifier from 'update-notifier'
-import { readFile } from 'fs/promises'
-import Path from 'path'
-import { fileURLToPath } from 'url'
 
 // Import: Libs
-import * as inquirer from './lib/inquirer.js'
-import * as config from './lib/configstore.js'
 import * as echo from './lib/echo.js'
 import * as helper from './lib/helper.js'
-
-// Import: Files
-const pkg = JSON.parse(await readFile(`${Path.dirname(fileURLToPath(import.meta.url))}/package.json`));
 
 // Variables
 const helpText = `
@@ -71,6 +62,9 @@ OPTIONS
     -u, --uploadLabels
         Upload custom labels to repository. Skips already existing labels.
 
+    -v, --version
+        Display the version number.
+
 EXAMPLES
     Delete all labels from the repository and upload custom ones stored under 'labels.json' to the repository:
         labeler -dur Labeler
@@ -86,91 +80,53 @@ EXAMPLES
     
     Delete and upload all labels from a GHE organization:
         labeler -dub -H github.yourhost.com
-`;
+`
+
+// Mention any v5 import before Meow, which exits straight away for -h and --version
+helper.echoMigration()
 
 // Meow CLI
 const cli = Meow(helpText, {
   importMeta: import.meta,
   description: false,
   flags: {
-    'help': {
-      alias: 'h',
-      type: 'boolean'
-    },
-    'config': {
-      alias: 'c',
-      type: 'boolean'
-    },
-    'repository': {
-      alias: 'r',
-      type: 'string'
-    },
-    'owner': {
-      alias: 'o',
-      type: 'string'
-    },
-    'host': {
-      alias: 'H',
-      type: 'string'
-    },
-    'token': {
-      alias: 't',
-      type: 'string'
-    },
-    'bulkUpdate': {
-      alias: 'b',
-      type: 'boolean'
-    },
-    'deleteAllLabels': {
-      alias: 'd',
-      type: 'boolean'
-    },
-    'newLabel': {
-      alias: 'n',
-      type: 'boolean'
-    },
-    'uploadLabels': {
-      alias: 'u',
-      type: 'boolean'
-    },
-    'force': {
-      alias: 'f',
-      type: 'boolean'
-    },
-    'emptyLabelsFile': {
-      alias: 'e',
-      type: 'boolean'
-    },
-    'resetLabelsFile': {
-      alias: 'R',
-      type: 'boolean'
-    },
-    'path': {
-      alias: 'p',
-      type: 'boolean'
-    }
+    help: { shortFlag: 'h', type: 'boolean' },
+    config: { shortFlag: 'c', type: 'boolean' },
+    repository: { shortFlag: 'r', type: 'string' },
+    owner: { shortFlag: 'o', type: 'string' },
+    host: { shortFlag: 'H', type: 'string' },
+    token: { shortFlag: 't', type: 'string' },
+    bulkUpdate: { shortFlag: 'b', type: 'boolean' },
+    deleteAllLabels: { shortFlag: 'd', type: 'boolean' },
+    newLabel: { shortFlag: 'n', type: 'boolean' },
+    uploadLabels: { shortFlag: 'u', type: 'boolean' },
+    force: { shortFlag: 'f', type: 'boolean' },
+    emptyLabelsFile: { shortFlag: 'e', type: 'boolean' },
+    resetLabelsFile: { shortFlag: 'R', type: 'boolean' },
+    path: { shortFlag: 'p', type: 'boolean' },
+    version: { shortFlag: 'v', type: 'boolean' }
   }
 })
+
+/** The parsed command line, as the helpers receive it */
+export type Cli = typeof cli
 
 /* --- Start --- */
 console.log()
 
-// Update Notifier
-UpdateNotifier({ pkg }).notify({ isGlobal: true })
-
-// Variables
-const token = helper.assignFlag(cli, 'token')
-const owner = helper.assignFlag(cli, 'owner')
-const repository = helper.assignFlag(cli, 'repository')
-const host = helper.assignFlag(cli, 'host')
-
-// Main function
-async function main() {
+/** Runs whatever the flags asked for */
+async function main(): Promise<void> {
   // Warn user if -f
   if (cli.flags.force) echo.warning('Detected -f, ignoring user confirmation.\n')
 
   // Check if flags were called correctly
   helper.checkFlags(cli)
+
+  // Variables
+  const token = helper.assignFlag(cli, 'token')
+  const owner = helper.assignFlag(cli, 'owner')
+  const repository = helper.assignFlag(cli, 'repository')
+  const host = helper.assignFlag(cli, 'host')
 
   // Check for flags
   if (cli.flags.bulkUpdate) helper.echoOwnerRepository(owner, 'Various')
@@ -181,8 +137,8 @@ async function main() {
   if (cli.flags.resetLabelsFile) await helper.resetLabelsFile(cli) // Reset labels.json file
   if (cli.flags.emptyLabelsFile) await helper.emptyLabelsFile(cli) // Delete all labels from labels.json
 
-  // This will delete and/or upload all labels to every repository under the owner organization in GHE
-  // TODO (#27): Currently only handles GHE instances, but could probably be adapted for a GitHub user
+  /* This will delete and/or upload all labels to every repository under the owner organization in GHE
+     TODO (#27): Currently only handles GHE instances, but could probably be adapted for a GitHub user */
   if (cli.flags.bulkUpdate) {
     const repos = await helper.getRepositories(token, owner, host)
     for (const repo of repos) {
@@ -196,31 +152,24 @@ async function main() {
   }
 
   if (cli.flags.config) await helper.cliConfig() // Run the interactive config CLI
-  // Run the interactive "create new label" CLI
-  if (cli.flags.newLabel) {
-    echo.tip('If you want to edit the file, here\'s the path:')
-    echo.info(config.path('labels'))
-    console.log()
-
-    // Ask if the user wants a fresh file or not
-    if (!cli.flags.force && !cli.flags.emptyLabelsFile) {
-      const answerFresh = await inquirer.choiceFreshNewLabels()
-      if (answerFresh) config.set('labels', { 'labels': [] })
-      console.log()
-    }
-
-    echo.info('Create new labels:')
-    await helper.cliNewLabel(cli)
-  }
+  if (cli.flags.newLabel) await helper.cliNewLabel(cli) // Run the interactive "create new label" CLI
 
   // If any of these flags is true, exit (these are the ones that can always be called, no matter what)
   if (cli.flags.resetLabelsFile || cli.flags.path) process.exit()
 
-  // If nothing happens, I'm assuming the user ran without flags
-  echo.error('Missing arguments.')
+  // Reached when no action flag matched, which includes flags Meow did not recognise
+  echo.error('Missing or unknown arguments.')
   echo.tip('Use -h for help.')
-  echo.info(`Version ${pkg.version}`, true)
+  echo.info(`Version ${cli.pkg.version}`, true)
 }
 
-// Call main()
-main()
+/* Inquirer throws ExitPromptError when a prompt cannot finish, which covers both Ctrl+C and
+   having no terminal at all. Neither deserves a stack trace */
+main().catch((error: unknown) => {
+  if (error instanceof Error && error.name === 'ExitPromptError') {
+    if (process.stdin.isTTY) echo.abort('Cancelled.', true)
+    echo.error('No interactive terminal available.')
+    echo.tip('Use -f to skip the confirmation prompts.', true)
+  }
+  throw error
+})

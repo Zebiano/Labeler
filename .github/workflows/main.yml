@@ -1,0 +1,40 @@
+name: CI
+
+# Every pull request to master and every new commit pushed to one, plus whatever lands on master
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+# Read the code, nothing else
+permissions:
+  contents: read
+
+# A new commit on a pull request makes the run for the previous one pointless
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      # Let every Node version finish, so a failure shows which ones are affected
+      fail-fast: false
+      matrix:
+        # The lines package.json's engines field promises
+        node: [22, 24, 26]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
