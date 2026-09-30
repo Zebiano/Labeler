@@ -294,15 +294,33 @@ describe('helper', () => {
       const run = await capture(async () => { repos = await helper.getRepositories('ghp_token', 'Zebiano', enterprise) })
 
       assert.deepEqual(repos, ['repo-1', 'repo-2'])
-      assert.equal(run.text.includes('Fetching list of 150 repository name(s) across 2 page(s), in organization Zebiano...'), true)
+      assert.deepEqual(fetching.requests.filter(request => request.method == 'GET').map(request => new URL(request.url).searchParams.get('page')), ['1', '2'])
+      assert.equal(run.lines.at(-1), 'Info: Found 2 repositories in organization Zebiano.')
     })
 
-    test('a repository list that cannot be counted stops the run', async () => {
-      fetching = stubFetch(() => new Response(null, { status: 200 }))
-      const run = await capture(() => helper.getRepositories('ghp_token', 'Zebiano', enterprise))
+    /* GitHub only sends a link header when there is more than one page, and with one repository
+       per page an organization with 0 or 1 repositories has just the one */
+    test('an organization with a single repository is listed from one page', async () => {
+      fetching = stubFetch(request => request.method == 'HEAD' ? new Response(null, { status: 200 }) : json(200, [{ name: 'Labeler' }]))
 
-      assert.equal(run.lines[0], 'Error: Unexpected status or response on HEAD request for GHE repository list.')
-      assert.equal(run.exited, true)
+      let repos: string[] = []
+      const run = await capture(async () => { repos = await helper.getRepositories('ghp_token', 'Zebiano', enterprise) })
+
+      assert.deepEqual(repos, ['Labeler'])
+      assert.equal(fetching.requests.at(-1)?.url, `https://${enterprise}/api/v3/orgs/Zebiano/repos?sort=full_name&page=1&per_page=100`)
+      assert.equal(run.lines.at(-1), 'Info: Found 1 repository in organization Zebiano.')
+      assert.equal(run.exited, false)
+    })
+
+    test('an organization without repositories is an empty list, not an error', async () => {
+      fetching = stubFetch(request => request.method == 'HEAD' ? new Response(null, { status: 200 }) : json(200, []))
+
+      let repos: string[] = ['unset']
+      const run = await capture(async () => { repos = await helper.getRepositories('ghp_token', 'Zebiano', enterprise) })
+
+      assert.deepEqual(repos, [])
+      assert.equal(run.lines.at(-1), 'Info: Found 0 repositories in organization Zebiano.')
+      assert.equal(run.exitCode, undefined)
     })
   })
 

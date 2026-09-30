@@ -250,19 +250,19 @@ export async function getRepositories(token: string | null, owner: string | null
 
   // Get the 'link' header from a request to list all repositories for the given org
   const link = await github.headRepoList(true, target.token, target.owner, host, 1)
-  if (!link) echo.error('Unexpected status or response on HEAD request for GHE repository list.', true)
 
   /* By passing in 1 as the per_page value, the "last" page link will have a page number equal to the number of repos
-     To compute the actual number of necessary requests, divide the number of repos by the requested per_page limit (max 100) */
-  const numberOfRepos = getPageCountFromLinkHeader(link)
-  const pageCount = Math.ceil(numberOfRepos / perPage)
-  echo.info(bold(`Fetching list of ${numberOfRepos} repository name(s) across ${pageCount} page(s), in organization ${target.owner}...`))
+     To compute the actual number of necessary requests, divide the number of repos by the requested per_page limit (max 100)
+     GitHub leaves the header out when everything fits on one page, which with one per page means 0 or 1 repos */
+  const pageCount = link ? Math.ceil(getPageCountFromLinkHeader(link) / perPage) : 1
 
   // Push every repo into repos array
   for (let i = 1; i <= pageCount; i++) {
     const res = await github.getReposByPage(true, target.token, target.owner, host, i, perPage)
     repos.push(...(res ?? []).map(repo => repo.name))
   }
+
+  echo.info(bold(`Found ${repos.length} ${repos.length == 1 ? 'repository' : 'repositories'} in organization ${target.owner}.`))
   return repos
 }
 
