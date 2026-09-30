@@ -18,7 +18,7 @@
 </div>
 
 > [!IMPORTANT]
-> Labeler has been ported to TypeScript and has undergone various changes with the v6 release, some of them breaking! Please refer to the changelog for more details, including instructions on how to migrate.
+> Labeler has been ported to TypeScript and has undergone various changes with the v6 release, some of them breaking! Please refer to the [release notes](https://github.com/Zebiano/Labeler/releases/tag/v6.0.0) for more details, including instructions on how to migrate.
 
 ## Why?
 
